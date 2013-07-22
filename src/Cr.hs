@@ -13,6 +13,9 @@ import Text.Printf
 
 import Google
 
+import System.Process
+import System.Exit
+
 version = "0.0.1"
 main = do
 
@@ -25,12 +28,17 @@ main = do
 
     getChromium "Win" ls
     
-    printf "\n -> Done"
-    printf "\n ========== "
-    printf "\n"
+    printf "\n -> Installing"
     
-    -- > Wait for keypress (Only for windows)
+    pid <- runCommand "mini-installer.exe"
+    waitForProcess pid >>= \exitWith -> do
+    
+        printf "\n -> Done"
+        printf "\n ========== "
+        printf "\n"
+
+        -- > Wait for keypress (Only for windows)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-    getChar
+        getChar
 #endif
-    -- >
+        -- >

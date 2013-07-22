@@ -17,3 +17,4 @@ Executable    Cr
     , network
     , utf8-string
     , HTTP
+    , process
