@@ -40,8 +40,8 @@ getChromium s v = withSocketsDo $ do
     --
     --     certificate verify chain doesn't yet work on your platform
     --
-    let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?path=" 
-                        ++ s ++ "/" ++ v ++ "/mini-installer.exe"
+    let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
+                        ++ s ++ "/" ++ v ++ "/mini_installer.exe"
     irequest <- liftIO $ parseUrl url
     withManager $ \manager -> do
         let request = irequest
