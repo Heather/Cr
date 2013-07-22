@@ -23,6 +23,10 @@ import qualified Data.Conduit as C
 
 import qualified Data.ByteString.Lazy as L
 import qualified Codec.Binary.UTF8.String as S
+
+import Network.HTTP.Types
+import Control.Monad.IO.Class (liftIO)
+
 {------------------------- Last Chromium Version --------------------------------------}
 getLastVersionForPlatform :: [Char] → IO String
 getLastVersionForPlatform s = withSocketsDo
@@ -31,15 +35,17 @@ getLastVersionForPlatform s = withSocketsDo
             >>= \bs → return $ S.decode $ L.unpack bs
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] → [Char] → IO()
-getChromium s v = do
+getChromium s v = withSocketsDo $ do
     -- with https : 
     --
     --     certificate verify chain doesn't yet work on your platform
     --
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?path=" 
                         ++ s ++ "/" ++ v ++ "/mini-installer.exe"
-    request <- parseUrl url
+    irequest <- liftIO $ parseUrl url
     withManager $ \manager -> do
-      response <- http request manager
-      responseBody response C.$$+- sinkFile "mini-installer.exe"
+        let request = irequest
+             { method = methodGet }
+        response <- http request manager
+        responseBody response C.$$+- sinkFile "mini-installer.exe"
 {----------------------------------------------------------------------------------------}
