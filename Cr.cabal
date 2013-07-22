@@ -18,3 +18,4 @@ Executable    Cr
     , utf8-string
     , HTTP
     , process
+    , conduit

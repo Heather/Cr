@@ -17,6 +17,10 @@ import Network.HTTP
 import Network.Socket
 import Network.HTTP.Conduit
 
+import Data.Conduit.Binary (sinkFile)
+import Network.HTTP.Conduit
+import qualified Data.Conduit as C
+
 import qualified Data.ByteString.Lazy as L
 import qualified Codec.Binary.UTF8.String as S
 {------------------------- Last Chromium Version --------------------------------------}
@@ -27,8 +31,15 @@ getLastVersionForPlatform s = withSocketsDo
             >>= \bs → return $ S.decode $ L.unpack bs
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] → [Char] → IO()
-getChromium s v = withSocketsDo
-    $   let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?path=" 
-                    ++ s ++ "/" ++ v ++ "/mini-installer.exe"
-        in simpleHttp url >>= L.writeFile "mini-installer.exe"
+getChromium s v = do
+    -- with https : 
+    --
+    --     certificate verify chain doesn't yet work on your platform
+    --
+    let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/index.html?path=" 
+                        ++ s ++ "/" ++ v ++ "/mini-installer.exe"
+    request <- parseUrl url
+    withManager $ \manager -> do
+      response <- http request manager
+      responseBody response C.$$+- sinkFile "mini-installer.exe"
 {----------------------------------------------------------------------------------------}
