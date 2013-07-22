@@ -36,14 +36,10 @@ getLastVersionForPlatform s = withSocketsDo
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] → [Char] → IO()
 getChromium s v = withSocketsDo $ do
-    -- with https : 
-    --
-    --     certificate verify chain doesn't yet work on your platform
-    --
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
                         ++ s ++ "/" ++ v ++ "/mini_installer.exe"
     irequest <- liftIO $ parseUrl url
-    withManager $ \manager -> do
+    withManager $ \manager → do
         let request = irequest
              { method = methodGet }
         response <- http request manager
