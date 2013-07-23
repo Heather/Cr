@@ -1,20 +1,10 @@
 ﻿{-# LANGUAGE UnicodeSyntax, CPP #-}
 
-import Data.List
-import Data.Function
-import Data.Char
-import Data.IORef
-import Data.Maybe
-
-import Control.Monad
-import Control.Applicative
-
 import Text.Printf
-
-import Google
-
 import System.Process
 import System.Exit
+
+import Google
 
 version = "0.0.1"
 main = do
