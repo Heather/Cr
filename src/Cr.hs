@@ -27,8 +27,8 @@ data Options = Options  {
 
 defaultOptions :: Options
 defaultOptions = Options {
-    optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] -> "Win"
-                     | os `elem` ["darwin"] -> "OSX"
+    optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] → "Win"
+                     | os `elem` ["darwin"] → "OSX"
                      | otherwise -> "Linux"
         ,
     optBuild = go "last"
