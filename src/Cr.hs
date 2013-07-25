@@ -1,33 +1,36 @@
-﻿{-# LANGUAGE UnicodeSyntax, CPP #-}
+﻿{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
 
 import Text.Printf
 import System.Environment( getArgs )
 import System.Process
 import System.Exit
 import System.Console.GetOpt
+import System.Info (os)
 
 import Google
 
 import Data.Maybe( fromMaybe )
 
-version = "0.0.1"
+version = "0.0.2"
 main = do
   args <- getArgs
   let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
   opts <- foldl (>>=) (return defaultOptions) actions
   let Options { optPlatform = platform,
                 optBuild = build } = opts
-  platform >>= build
+  build platform
 
 data Options = Options  {
-    optPlatform  :: IO String,
+    optPlatform  :: String,
     optBuild :: String → IO()
   }
 
 defaultOptions :: Options
 defaultOptions = Options {
-    --TODO: Detect platform
-    optPlatform  = (return "Win"),
+    optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] -> "Win"
+                     | os `elem` ["darwin"] -> "OSX"
+                     | otherwise -> "Linux"
+        ,
     optBuild = go "last"
   }
 
@@ -42,7 +45,7 @@ showVersion _ = do
   printf "\n  Cr v.%s\n\n" version
   exitWith ExitSuccess
   
-getp arg opt = return opt { optPlatform = return arg }
+getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
 
 go :: String → String → IO()
