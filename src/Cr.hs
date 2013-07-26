@@ -1,4 +1,4 @@
-﻿{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
+{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
 
 import Text.Printf
 import System.Environment( getArgs )

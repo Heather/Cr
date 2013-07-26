@@ -1,4 +1,5 @@
-﻿{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE UnicodeSyntax #-}
+
 module Google
   ( getLastVersionForPlatform
   , getChromium
