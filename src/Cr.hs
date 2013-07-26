@@ -36,13 +36,19 @@ defaultOptions = Options {
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
-    Option ['V'] ["version"] (NoArg showVersion) "show version number",
+    Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
+    Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
   ]
 
 showVersion _ = do
   printf "\n  Cr v.%s\n\n" version
+  exitWith ExitSuccess
+  
+showChromeVersion _ = do
+  ls <- getLastVersionForPlatform "Win"
+  printf "last: %s\n" ls
   exitWith ExitSuccess
   
 getp arg opt = return opt { optPlatform = arg }
