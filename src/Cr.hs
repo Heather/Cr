@@ -58,10 +58,10 @@ go :: String → String → IO()
 go bl pl = do
     printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
     
-    printf "\n ========== " 
+    printf "\n ========================== " 
     ls <- if bl == "last"
             then do 
-                printf "\n -> Checking flor last version"
+                printf "\n -> Checking for the last version"
                 getLastVersionForPlatform pl
             else (return bl)
     
@@ -72,7 +72,7 @@ go bl pl = do
     pid <- runCommand "mini-installer.exe"
     waitForProcess pid >>= \exitWith → do
         printf "\n -> Done"
-        printf "\n ========== "
+        printf "\n ========================== "
         printf "\n"
 
         -- > Wait for keypress (Only for windows)
