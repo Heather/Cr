@@ -74,8 +74,3 @@ go bl pl = do
         printf "\n -> Done"
         printf "\n ========================== "
         printf "\n"
-
-        -- > Wait for keypress (Only for windows)
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-        getChar >> return () -- return nothing but IO
-#endif
