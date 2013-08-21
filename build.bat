@@ -1,10 +1,5 @@
 @echo off
 
-::echo ---------------------------
-::echo   Check for updates
-::echo ---------------------------
-::git pull
-
 echo ---------------------------
 echo   Dependencies check
 echo ---------------------------
