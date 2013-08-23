@@ -22,7 +22,7 @@ getDepotTools :: [Char] → IO()
 getDepotTools p = 
     case p of
      "Win" -> withSocketsDo $ do
-        let url = "https://src.chromium.org/svn/trunk/tools/depot_tools.zip"
+        let url = "http://src.chromium.org/svn/trunk/tools/depot_tools.zip"
         irequest <- liftIO $ parseUrl url
         withManager $ \manager → do
             let request = irequest
