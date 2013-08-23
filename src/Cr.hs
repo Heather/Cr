@@ -59,7 +59,7 @@ showChromeVersion _ = do
     exitWith ExitSuccess
 
 getSrc _ = do
-    printf "\n -> Getting Depot Tools"
+    putStrLn " -> Getting Depot Tools"
     getDepotTools "Win"
     exitWith ExitSuccess
 
@@ -69,19 +69,19 @@ go :: String → String → IO()
 go bl pl = do
     printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
     
-    printf "\n ========================== " 
+    putStrLn " ========================== " 
     ls <- if bl == "last"
             then do 
-                printf "\n -> Checking for the last version"
+                putStrLn " -> Checking for the last version"
                 getLastVersionForPlatform pl
             else (return bl)
     
     printf "\n -> Getting %s" ls
     getChromium "Win" ls
     
-    printf "\n -> Installing"
+    putStrLn " -> Installing"
     pid <- runCommand "mini-installer.exe"
     waitForProcess pid >>= \exitWith → do
-        printf "\n -> Done"
-        printf "\n ========================== "
-        printf "\n"
+        putStrLn " -> Done"
+        putStrLn " ========================== "
+        putStrLn ""
