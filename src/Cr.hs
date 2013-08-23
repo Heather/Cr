@@ -1,5 +1,8 @@
 {-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
 
+import CommonDataStorage
+import Depot
+
 import Text.Printf
 import System.Environment( getArgs )
 import System.Process
@@ -7,18 +10,16 @@ import System.Exit
 import System.Console.GetOpt
 import System.Info (os)
 
-import Google
-
 import Data.Maybe( fromMaybe )
 
-version = "0.0.2"
+version = "0.0.3"
 main = do
-  args <- getArgs
-  let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
-  opts <- foldl (>>=) (return defaultOptions) actions
-  let Options { optPlatform = platform,
+    args <- getArgs
+    let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
+    opts <- foldl (>>=) (return defaultOptions) actions
+    let Options { optPlatform = platform,
                 optBuild = build } = opts
-  build platform
+    build platform
 
 data Options = Options  {
     optPlatform  :: String,
@@ -38,19 +39,25 @@ options :: [OptDescr (Options -> IO Options)]
 options = [
     Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
+    Option ['s'] ["src"]     (NoArg getSrc) "Get chromium sources",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
   ]
 
 showVersion _ = do
-  printf "\n  Cr v.%s\n\n" version
-  exitWith ExitSuccess
+    printf "\n  Cr v.%s\n\n" version
+    exitWith ExitSuccess
   
 showChromeVersion _ = do
-  ls <- getLastVersionForPlatform "Win"
-  printf "last: %s\n" ls
-  exitWith ExitSuccess
-  
+    ls <- getLastVersionForPlatform "Win"
+    printf "last: %s\n" ls
+    exitWith ExitSuccess
+
+getSrc _ = do
+    printf "\n -> Getting Depot Tools"
+    getDepotTools "Win"
+    exitWith ExitSuccess
+
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
 

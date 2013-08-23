@@ -1,6 +1,6 @@
 {-# LANGUAGE UnicodeSyntax #-}
 
-module Google
+module CommonDataStorage
   ( getLastVersionForPlatform
   , getChromium
   ) where
@@ -20,15 +20,15 @@ import qualified Codec.Binary.UTF8.String as S
 import Control.Monad.IO.Class (liftIO)
 {------------------------- Last Chromium Version --------------------------------------}
 getLastVersionForPlatform :: [Char] → IO String
-getLastVersionForPlatform s = withSocketsDo
-    $   let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" ++ s ++ "/LAST_CHANGE"
+getLastVersionForPlatform p = withSocketsDo
+    $   let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" ++ p ++ "/LAST_CHANGE"
         in simpleHttp url
             >>= \bs → return $ S.decode $ L.unpack bs
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] → [Char] → IO()
-getChromium s v = withSocketsDo $ do
+getChromium p v = withSocketsDo $ do
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-                        ++ s ++ "/" ++ v ++ "/mini_installer.exe"
+                        ++ p ++ "/" ++ v ++ "/mini_installer.exe"
     irequest <- liftIO $ parseUrl url
     withManager $ \manager → do
         let request = irequest
