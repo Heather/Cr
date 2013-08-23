@@ -12,7 +12,7 @@ import System.Info (os)
 
 import Data.Maybe( fromMaybe )
 
-version = "0.0.6"
+version = "0.0.7"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -59,7 +59,7 @@ showChromeVersion _ = do
         >> exitWith ExitSuccess
 
 getSrc _ = do
-    getGitSources "Win"
+    gInit "Win"
     exitWith ExitSuccess
 
 getp arg opt = return opt { optPlatform = arg }
