@@ -36,7 +36,8 @@ gInit p =
             putStrLn "======================================================"
             getChar >> return ()
             {- I know..................................................... -}
-            pid <- runCommand $ ddir ++ "//gclient"
+            pid <- runCommand $ ddir ++ "\\gclient"
+            putStrLn $ ddir ++ "/gclient"
             waitForProcess pid >>= \exitWith → 
                 putStrLn ""
      _  -> putStrLn "This platform is not supported yet :("
@@ -44,6 +45,7 @@ gInit p =
 gClient :: [Char] → IO()
 gClient args = do
     let ddir = "depot_tools"
-    pid <- runCommand $ ddir ++ "//gclient " ++ args
+    {- TODO: Handle POSIX -}
+    pid <- runCommand $ ddir ++ "\\gclient " ++ args
     waitForProcess pid >>= \exitWith → putStrLn ""
 {----------------------------------------------------------------------------------------}
