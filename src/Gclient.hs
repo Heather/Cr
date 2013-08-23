@@ -29,9 +29,16 @@ gInit p =
                 getDepotTools p
                 dictZipFile <- B.readFile tarball
                 extractFilesFromArchive [] $ toArchive dictZipFile
-            {- Here depot_tools must be added to PATH -}
+            {-          Here depot_tools must be added to PATH             -}
+            putStrLn "======================================================"
+            putStrLn " -> NOW! Move your ass and add depot_tools to PATH" 
+            putStrLn " -> Press any key when it will be done or already done"
+            putStrLn "======================================================"
+            getChar >> return ()
+            {- I know..................................................... -}
             pid <- runCommand $ ddir ++ "gclient"
-            waitForProcess pid >>= \exitWith → putStrLn " -> Done"
+            waitForProcess pid >>= \exitWith → 
+                putStrLn ""
      _  -> putStrLn "This platform is not supported yet :("
 {-------------------------------  Depot Tools  -----------------------------------------}
 gClient :: [Char] → IO()

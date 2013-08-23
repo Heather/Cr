@@ -29,5 +29,5 @@ getDepotTools p =
                  { method = methodGet }
             response <- http request manager
             responseBody response C.$$+- sinkFile "depot_tools.zip"
-     _  -> putStrLn "This platform is not supported yet :("
+     _  -> return ()
 {----------------------------------------------------------------------------------------}
