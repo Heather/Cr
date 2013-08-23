@@ -8,13 +8,14 @@ import Depot
 
 import System.IO
 import System.Directory
+
+import Control.Monad
 {-------------------------------  Depot Tools  -----------------------------------------}
 getGitSources :: [Char] → IO()
-getGitSources p =
+getGitSources p = do
     case p of
      "Win" -> do
-        doesFileExist "depot_tools.zip" >>= \fileExist → if not fileExist 
-            then print " -> Getting Depot Tools" >> getDepotTools p
-            else print ""
+        doesFileExist "depot_tools.zip" >>= \fileExist → unless fileExist
+            $ print " -> Getting Depot Tools" >> getDepotTools p
      _  -> putStrLn "This platform is not supported yet :("
 {----------------------------------------------------------------------------------------}
