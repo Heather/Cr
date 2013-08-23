@@ -12,7 +12,7 @@ import System.Info (os)
 
 import Data.Maybe( fromMaybe )
 
-version = "0.0.4"
+version = "0.0.5"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -47,7 +47,7 @@ options = [
 
 showVersion _ = do
     printf "\n  Cr v.%s\n\n" version
-    exitWith ExitSuccess
+        >> exitWith ExitSuccess
     
 showHelp _ = do
     putStrLn $ usageInfo "Usage: Cr [optional things]" options
@@ -56,12 +56,12 @@ showHelp _ = do
 showChromeVersion _ = do
     ls <- getLastVersionForPlatform "Win"
     printf "last: %s\n" ls
-    exitWith ExitSuccess
+        >> exitWith ExitSuccess
 
 getSrc _ = do
     putStrLn " -> Getting Depot Tools"
     getDepotTools "Win"
-    exitWith ExitSuccess
+        >> exitWith ExitSuccess
 
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
@@ -76,8 +76,8 @@ go bl pl = do
                 getLastVersionForPlatform pl
             else (return bl)
     
-    printf "\n -> Getting %s" ls
-    getChromium "Win" ls
+    printf " -> Getting %s\n" ls
+        >> getChromium "Win" ls
     
     putStrLn " -> Installing"
     pid <- runCommand "mini-installer.exe"
