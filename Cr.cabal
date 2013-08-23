@@ -21,3 +21,4 @@ Executable    Cr
     , http-types
     , transformers
     , directory
+    , zip-archive
