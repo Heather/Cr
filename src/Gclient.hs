@@ -45,18 +45,13 @@ gInit p =
 {----------------------------------  gclient  -------------------------------------------}
 gClient :: [Char] → IO()
 gClient args = do
-    let ddir = "depot_tools"
-    {- TODO: Handle POSIX -}
-    pid <- runCommand $ ddir ++ "\\gclient " ++ args
+    pid <- runCommand $ "gclient " ++ args
     waitForProcess pid >>= \exitWith → putStrLn ""
 {----------------------------------------------------------------------------------------}
 fetch :: [Char] → IO()
 fetch project = do
     doesDirectoryExist project >>= \dirExist → unless dirExist $ do
         createDirectory project
-    {- TODO: Handle POSIX -}
-    let ddir = "depot_tools"
-    {- TODO: fetch to chromium directory -}
-    pid <- runCommand $ ddir ++ "\\fetch " ++ project ++ " --nosvn=True"
+    pid <- runCommand $ "cd " ++ project ++ "&fetch " ++ project ++ " --nosvn=True"
     waitForProcess pid >>= \exitWith → putStrLn ""
 {----------------------------------------------------------------------------------------}

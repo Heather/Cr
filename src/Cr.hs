@@ -12,7 +12,7 @@ import System.Info (os)
 
 import Data.Maybe( fromMaybe )
 
-version = "0.0.7"
+version = "0.0.8"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
