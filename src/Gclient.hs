@@ -2,7 +2,8 @@
 
 module Gclient
   ( gInit,
-    gClient
+    gClient,
+    getGitSources
   ) where
 
 import Depot
@@ -47,5 +48,14 @@ gClient args = do
     let ddir = "depot_tools"
     {- TODO: Handle POSIX -}
     pid <- runCommand $ ddir ++ "\\gclient " ++ args
+    waitForProcess pid >>= \exitWith → putStrLn ""
+{----------------------------------------------------------------------------------------}
+getGitSources :: IO()
+getGitSources = do
+    doesDirectoryExist "chromium" >>= \dirExist → unless dirExist $ do
+        createDirectory "chromium"
+    {- TODO: Handle POSIX -}
+    let ddir = "depot_tools"
+    pid <- runCommand $ ddir ++ "\\fetch chromium --nosvn=True"
     waitForProcess pid >>= \exitWith → putStrLn ""
 {----------------------------------------------------------------------------------------}
