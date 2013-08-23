@@ -1,5 +1,5 @@
 name: Cr
-version: 0.0.5
+version: 0.0.6
 license: BSD3
 
 build-type: Simple
@@ -20,3 +20,4 @@ Executable    Cr
     , conduit
     , http-types
     , transformers
+    , directory
