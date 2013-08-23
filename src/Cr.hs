@@ -60,6 +60,7 @@ showChromeVersion _ = do
 
 getSrc _ = do
     gInit "Win"
+    fetch "chromium"
     exitWith ExitSuccess
 
 getp arg opt = return opt { optPlatform = arg }
