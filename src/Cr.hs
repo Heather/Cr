@@ -12,7 +12,7 @@ import System.Info (os)
 
 import Data.Maybe( fromMaybe )
 
-version = "0.0.3"
+version = "0.0.4"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -38,6 +38,7 @@ defaultOptions = Options {
 options :: [OptDescr (Options -> IO Options)]
 options = [
     Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
+    Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['s'] ["src"]     (NoArg getSrc) "Get chromium sources",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
@@ -46,6 +47,10 @@ options = [
 
 showVersion _ = do
     printf "\n  Cr v.%s\n\n" version
+    exitWith ExitSuccess
+    
+showHelp _ = do
+    putStrLn $ usageInfo "Usage: Cr [optional things]" options
     exitWith ExitSuccess
   
 showChromeVersion _ = do
@@ -60,7 +65,6 @@ getSrc _ = do
 
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
-
 go :: String → String → IO()
 go bl pl = do
     printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
