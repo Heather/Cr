@@ -75,8 +75,11 @@ fetch :: [Char] → IO()
 fetch project = do
     let pDir = if | os `elem` ["win32", "mingw32", "cygwin32"] → "C:/" </> project
                   | otherwise -> project
-    doesDirectoryExist pDir >>= \dirExist → unless dirExist $ do
-        createDirectory pDir
-    pid <- runCommand $ "cd " ++ pDir ++ "& C:/depot_tools/fetch " ++ project ++ " --nosvn=True"
-    waitForProcess pid >>= \exitWith → putStrLn ""
+    doesDirectoryExist pDir >>= \dirExist → 
+        if dirExist
+            then do createDirectory pDir
+                    pid <- runCommand $ "cd " ++ pDir ++ "& C:/depot_tools/fetch " ++ project ++ " --nosvn=True"
+                    waitForProcess pid >>= \exitWith → putStrLn " -> Fetch complete"
+            else do pid <- runCommand $ "cd " ++ pDir ++ "& C:/depot_tools/gclient update"
+                    waitForProcess pid >>= \exitWith → putStrLn " -> Update complete"
 {----------------------------------------------------------------------------------------}
