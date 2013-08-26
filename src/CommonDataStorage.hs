@@ -59,7 +59,7 @@ getDart p = case p of
         let src = "dartium-win"
         let dst = "C:/dartium-win"
         dictZipFile <- B.readFile tarball
-        extractFilesFromArchive [OptRecursive, OptVerbose] $ toArchive dictZipFile
+        extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
         srcExists <- doesDirectoryExist src
         dstExists <- doesDirectoryExist dst
         if or [not srcExists, dstExists] 

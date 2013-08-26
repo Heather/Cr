@@ -34,7 +34,7 @@ gInit p = case p of
                 putStrLn " -> Getting Depot Tools" 
                 getDepotTools p
                 dictZipFile <- B.readFile tarball
-                extractFilesFromArchive [OptRecursive, OptVerbose] $ toArchive dictZipFile
+                extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
                 srcExists <- doesDirectoryExist src
                 dstExists <- doesDirectoryExist dst
                 if or [not srcExists, dstExists] 
