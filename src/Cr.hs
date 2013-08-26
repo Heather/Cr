@@ -12,7 +12,7 @@ import System.Info (os)
 
 import Data.Maybe( fromMaybe )
 
-version = "0.1.2"
+version = "0.1.3"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -41,6 +41,7 @@ options = [
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['s'] ["src"]     (NoArg getSrc) "Get chromium sources",
+    Option ['d'] ["dartium"] (NoArg getDartium) "Get dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
   ]
@@ -61,6 +62,10 @@ showChromeVersion _ = do
 getSrc _ = do
     gInit "Win"
         >> fetch "chromium"
+        >> exitWith ExitSuccess
+        
+getDartium _ = do
+    getDart "Win"
         >> exitWith ExitSuccess
 
 getp arg opt = return opt { optPlatform = arg }

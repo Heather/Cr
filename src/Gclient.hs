@@ -6,6 +6,7 @@ module Gclient
     fetch
   ) where
 
+import Base
 import Depot
 
 import Codec.Archive.Zip
@@ -21,23 +22,10 @@ import System.FilePath((</>))
 import Control.Monad
 
 import qualified Data.ByteString.Lazy as B
-{------------------------------------  CopyDir  -----------------------------------------}
-copyDir ::  FilePath -> FilePath -> IO ()
-copyDir src dst = do
-    createDirectory dst
-    content <- getDirectoryContents src
-    let xs = filter (`notElem` [".", ".."]) content
-    forM_ xs $ \name -> do
-        let srcPath = src </> name
-        let dstPath = dst </> name
-        isDirectory <- doesDirectoryExist srcPath
-        if isDirectory
-            then copyDir srcPath dstPath
-            else copyFile srcPath dstPath
 {-------------------------------  GettingGclientReady  ----------------------------------}
 gInit :: [Char] → IO()
 gInit p = case p of
-    "Win" -> do
+    "Win" → do
         let src = "depot_tools"
         let dst = "C:/depot_tools"
         doesDirectoryExist src >>= \dirExist → unless dirExist $ do
@@ -54,6 +42,7 @@ gInit p = case p of
                     else do
                         copyDir src dst
                             >> removeDirectoryRecursive src
+                            >> removeFile tarball
             {-          Here depot_tools must be added to PATH             -}
             putStrLn "======================================================"
             putStrLn " -> NOW! Move your ass and add C:/depot_tools to PATH" 
@@ -64,7 +53,7 @@ gInit p = case p of
             pid <- runCommand $ dst </> "gclient"
             waitForProcess pid >>= \exitWith → 
                 putStrLn ""
-    _  -> putStrLn "This platform is not supported yet :("
+    _  → putStrLn "This platform is not supported yet :("
 {----------------------------------  gclient  -------------------------------------------}
 gClient :: [Char] → IO()
 gClient args = do
@@ -74,7 +63,7 @@ gClient args = do
 fetch :: [Char] → IO()
 fetch project = do
     let pDir = if | os `elem` ["win32", "mingw32", "cygwin32"] → "C:/" </> project
-                  | otherwise -> project
+                  | otherwise → project
     doesDirectoryExist pDir >>= \dirExist → 
         if dirExist
             then do createDirectory pDir
