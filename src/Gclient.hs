@@ -29,7 +29,7 @@ gInit p =
                 putStrLn " -> Getting Depot Tools" 
                 getDepotTools p
                 dictZipFile <- B.readFile tarball
-                extractFilesFromArchive [] $ toArchive dictZipFile
+                extractFilesFromArchive [OptRecursive, OptVerbose] $ toArchive dictZipFile
             {-          Here depot_tools must be added to PATH             -}
             putStrLn "======================================================"
             putStrLn " -> NOW! Move your ass and add depot_tools to PATH" 
