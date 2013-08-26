@@ -51,7 +51,9 @@ gInit p =
                 dstExists <- doesDirectoryExist dst
                 if or [not srcExists, dstExists] 
                     then putStrLn " -> Can not copy to C:"
-                    else copyDir src dst
+                    else do
+                        copyDir src dst
+                            >> removeDirectoryRecursive src
             {-          Here depot_tools must be added to PATH             -}
             putStrLn "======================================================"
             putStrLn " -> NOW! Move your ass and add C:/depot_tools to PATH" 
