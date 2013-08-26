@@ -49,7 +49,7 @@ getDart :: [Char] → IO()
 getDart p = case p of
     "Win" -> withSocketsDo $ do
         let tarball = "dartium-win.zip"
-        let url = "https://storage.googleapis.com/dart-editor-archive-integration/latest/dartium-win.zip"
+        let url = "http://storage.googleapis.com/dart-editor-archive-integration/latest/dartium-win.zip"
         irequest <- liftIO $ parseUrl url
         withManager $ \manager → do
             let request = irequest
