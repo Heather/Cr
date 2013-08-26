@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE UnicodeSyntax, MultiWayIf #-}
 
 module Gclient
   ( gInit,
@@ -15,6 +15,7 @@ import System.Exit
 import System.Directory
 import System.Process
 
+import System.Info (os)
 import System.FilePath((</>))
 
 import Control.Monad
@@ -35,9 +36,8 @@ copyDir src dst = do
             else copyFile srcPath dstPath
 {-------------------------------  GettingGclientReady  ----------------------------------}
 gInit :: [Char] → IO()
-gInit p =
-    case p of
-     "Win" -> do
+gInit p = case p of
+    "Win" -> do
         let src = "depot_tools"
         let dst = "C:/depot_tools"
         doesDirectoryExist src >>= \dirExist → unless dirExist $ do
@@ -64,7 +64,7 @@ gInit p =
             pid <- runCommand $ dst </> "gclient"
             waitForProcess pid >>= \exitWith → 
                 putStrLn ""
-     _  -> putStrLn "This platform is not supported yet :("
+    _  -> putStrLn "This platform is not supported yet :("
 {----------------------------------  gclient  -------------------------------------------}
 gClient :: [Char] → IO()
 gClient args = do
@@ -73,8 +73,10 @@ gClient args = do
 {----------------------------------------------------------------------------------------}
 fetch :: [Char] → IO()
 fetch project = do
-    doesDirectoryExist project >>= \dirExist → unless dirExist $ do
-        createDirectory project
-    pid <- runCommand $ "cd " ++ project ++ "& C:/depot_tools/fetch " ++ project ++ " --nosvn=True"
+    let pDir = if | os `elem` ["win32", "mingw32", "cygwin32"] → "C:/" </> project
+                  | otherwise -> project
+    doesDirectoryExist pDir >>= \dirExist → unless dirExist $ do
+        createDirectory pDir
+    pid <- runCommand $ "cd " ++ pDir ++ "& C:/depot_tools/fetch " ++ project ++ " --nosvn=True"
     waitForProcess pid >>= \exitWith → putStrLn ""
 {----------------------------------------------------------------------------------------}

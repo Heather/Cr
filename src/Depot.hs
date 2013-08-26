@@ -19,9 +19,8 @@ import qualified Codec.Binary.UTF8.String as S
 import Control.Monad.IO.Class (liftIO)
 {-------------------------------  Depot Tools  -----------------------------------------}
 getDepotTools :: [Char] → IO()
-getDepotTools p = 
-    case p of
-     "Win" -> withSocketsDo $ do
+getDepotTools p = case p of
+    "Win" -> withSocketsDo $ do
         let url = "http://src.chromium.org/svn/trunk/tools/depot_tools.zip"
         irequest <- liftIO $ parseUrl url
         withManager $ \manager → do
@@ -29,5 +28,5 @@ getDepotTools p =
                  { method = methodGet }
             response <- http request manager
             responseBody response C.$$+- sinkFile "depot_tools.zip"
-     _  -> return ()
+    _  -> return ()
 {----------------------------------------------------------------------------------------}
