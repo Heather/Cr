@@ -10,9 +10,7 @@ import System.Exit
 import System.Console.GetOpt
 import System.Info (os)
 
-import Data.Maybe( fromMaybe )
-
-version = "0.1.3"
+version = "0.1.4"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
