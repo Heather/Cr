@@ -25,7 +25,7 @@ getChromium s v = withSocketsDo $ do
  - Run Cr --platform="Win" to get chromium for specified platform (last by default)
  - Run Cr --build to get specified build version
  - Run Cr --last to see what is last version
- 
+
 Sources
 -------
 
