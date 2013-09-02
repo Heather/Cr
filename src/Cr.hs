@@ -68,6 +68,7 @@ getDartium _ = do
 
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
+
 go :: String → String → IO()
 go bl pl = do
     printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
