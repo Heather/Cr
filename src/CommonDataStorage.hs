@@ -36,14 +36,17 @@ getLastVersionForPlatform p = withSocketsDo
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] → [Char] → IO()
 getChromium p v = withSocketsDo $ do
+    let fname = "mini-installer.exe"
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-                        ++ p ++ "/" ++ v ++ "/mini_installer.exe"
+                        ++ p ++ "/" ++ v ++ "/" ++ fname
     irequest <- liftIO $ parseUrl url
+    fileExist <- doesFileExist fname
+    when fileExist $ removeFile fname
     withManager $ \manager → do
         let request = irequest
              { method = methodGet }
         response <- http request manager
-        responseBody response C.$$+- sinkFile "mini-installer.exe"
+        responseBody response C.$$+- sinkFile fname
 {----------------------------------------------------------------------------------------}
 getDart :: [Char] → IO()
 getDart p = case p of
