@@ -36,12 +36,15 @@ getLastVersionForPlatform p = withSocketsDo
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] → [Char] → IO()
 getChromium p v = withSocketsDo $ do
-    let fname = "mini-installer.exe"
+    let fname = "mini_installer.exe"
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
                         ++ p ++ "/" ++ v ++ "/" ++ fname
+    putStrLn $ " -> " ++ url
     irequest <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
-    when fileExist $ removeFile fname
+    when fileExist $ do
+        putStrLn " -> Removing old version"
+        removeFile fname
     withManager $ \manager → do
         let request = irequest
              { method = methodGet }

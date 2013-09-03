@@ -10,7 +10,7 @@ import System.Exit
 import System.Console.GetOpt
 import System.Info (os)
 
-version = "0.1.4"
+version = "0.1.5"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -83,7 +83,7 @@ go bl pl = do
         >> getChromium "Win" ls
     
     putStrLn " -> Installing"
-    pid <- runCommand "mini-installer.exe"
+    pid <- runCommand "mini_installer.exe"
     waitForProcess pid >>= \exitWith → do
         putStrLn " -> Done"
         putStrLn " ========================== "
