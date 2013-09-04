@@ -34,12 +34,10 @@ getLastVersionForPlatform p = withSocketsDo
         in simpleHttp url
             >>= \bs → return $ S.decode $ L.unpack bs
 {-------------------------  Chromium  --------------------------------------}
-getChromium :: [Char] → [Char] → IO()
-getChromium p v = withSocketsDo $ do
-    let fname = "mini_installer.exe"
+getChromium :: [Char] → [Char] → [Char] → IO()
+getChromium p v fname = withSocketsDo $ do
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
                         ++ p ++ "/" ++ v ++ "/" ++ fname
-    putStrLn $ " -> " ++ url
     irequest <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
     when fileExist $ do

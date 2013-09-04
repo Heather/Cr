@@ -5,12 +5,15 @@ import Gclient
 
 import Text.Printf
 import System.Environment( getArgs )
+import System.Directory
 import System.Process
 import System.Exit
 import System.Console.GetOpt
 import System.Info (os)
 
-version = "0.1.5"
+import Control.Monad
+
+version = "0.1.6"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -79,12 +82,17 @@ go bl pl = do
                 getLastVersionForPlatform pl
             else (return bl)
     
+    let fname = "mini_installer.exe"
     printf " -> Getting %s\n" ls
-        >> getChromium "Win" ls
+        >> getChromium pl ls fname
     
     putStrLn " -> Installing"
-    pid <- runCommand "mini_installer.exe"
+    pid <- runCommand fname
     waitForProcess pid >>= \exitWith → do
+        fileExist <- doesFileExist fname
+        when fileExist $ do
+            putStrLn " -> Clean Up"
+            removeFile fname
         putStrLn " -> Done"
         putStrLn " ========================== "
         putStrLn ""
