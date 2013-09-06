@@ -77,12 +77,15 @@ data Config = Config
   { cr :: String
   , installed  :: Int
   } deriving (Read, Show)
-readConfig :: String -> Config
+readConfig :: String → Config
 readConfig = read
+writeConfig :: Config → String
+writeConfig = show
 
 go :: String → String → IO()
 go bl pl = do
-    config <- readFile "Cr.cfg" >>= return . readConfig
+    let cfgFile = "Cr.cfg"
+    config <- readFile cfgFile >>= return . readConfig
     case (cr config) of
      "Src" → getSrc ""
      "Dart" → getDartium ""
@@ -91,11 +94,10 @@ go bl pl = do
         printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
         putStrLn " ========================== " 
         ls <- if bl == "last"
-                then do 
-                    putStrLn " -> Checking for the last version"
-                    getLastVersionForPlatform pl
+                then do putStrLn " -> Checking for the last version"
+                        getLastVersionForPlatform pl
                 else (return bl)
-        
+        let new_config = config{installed=read ls :: Int}
         let fname = "mini_installer.exe"
         printf " -> Getting %s\n" ls
             >> getChromium pl ls fname
@@ -107,6 +109,7 @@ go bl pl = do
             when fileExist $ do
                 putStrLn " -> Clean Up"
                 removeFile fname
+            writeFile cfgFile $ writeConfig new_config
             putStrLn " -> Done" -- AppData\Local\Chromium\Application
             putStrLn " ========================== "
             putStrLn ""
