@@ -37,7 +37,7 @@ defaultOptions = Options {
     optBuild = go "last"
   }
 
-options :: [OptDescr (Options -> IO Options)]
+options :: [OptDescr (Options → IO Options)]
 options = [
     Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
