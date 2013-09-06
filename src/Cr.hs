@@ -32,7 +32,7 @@ defaultOptions :: Options
 defaultOptions = Options {
     optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] → "Win"
                      | os `elem` ["darwin"] → "Mac"
-                     | otherwise -> "Linux"
+                     | otherwise → "Linux"
         ,
     optBuild = go "last"
   }
