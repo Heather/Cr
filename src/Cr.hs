@@ -12,8 +12,9 @@ import System.Console.GetOpt
 import System.Info (os)
 
 import Control.Monad
+import Control.Applicative
 
-version = "0.1.6"
+version = "0.1.7"
 main = do
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -72,27 +73,40 @@ getDartium _ = do
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
 
+data Config = Config
+  { cr :: String
+  , installed  :: Int
+  } deriving (Read, Show)
+readConfig :: String -> Config
+readConfig = read
+
 go :: String → String → IO()
 go bl pl = do
-    printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
-    putStrLn " ========================== " 
-    ls <- if bl == "last"
-            then do 
-                putStrLn " -> Checking for the last version"
-                getLastVersionForPlatform pl
-            else (return bl)
-    
-    let fname = "mini_installer.exe"
-    printf " -> Getting %s\n" ls
-        >> getChromium pl ls fname
-    
-    putStrLn " -> Installing"
-    pid <- runCommand fname
-    waitForProcess pid >>= \exitWith → do
-        fileExist <- doesFileExist fname
-        when fileExist $ do
-            putStrLn " -> Clean Up"
-            removeFile fname
-        putStrLn " -> Done"
-        putStrLn " ========================== "
-        putStrLn ""
+    config <- readFile "Cr.cfg" >>= return . readConfig
+    case (cr config) of
+     "Src" → getSrc ""
+     "Dart" → getDartium ""
+     "JustShowVersion" → showChromeVersion ""
+     _ → do {- default // Installation // -}
+        printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
+        putStrLn " ========================== " 
+        ls <- if bl == "last"
+                then do 
+                    putStrLn " -> Checking for the last version"
+                    getLastVersionForPlatform pl
+                else (return bl)
+        
+        let fname = "mini_installer.exe"
+        printf " -> Getting %s\n" ls
+            >> getChromium pl ls fname
+        
+        putStrLn " -> Installing"
+        pid <- runCommand fname
+        waitForProcess pid >>= \exitWith → do
+            fileExist <- doesFileExist fname
+            when fileExist $ do
+                putStrLn " -> Clean Up"
+                removeFile fname
+            putStrLn " -> Done" -- AppData\Local\Chromium\Application
+            putStrLn " ========================== "
+            putStrLn ""

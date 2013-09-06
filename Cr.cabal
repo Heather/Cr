@@ -1,5 +1,5 @@
 name: Cr
-version: 0.1.6
+version: 0.1.7
 license: BSD3
 
 build-type: Simple
@@ -23,6 +23,3 @@ Executable    Cr
     , directory
     , filepath
     , zip-archive
-
--- TODO: fix missingH
--- , ConfigFile
