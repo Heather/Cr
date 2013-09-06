@@ -97,19 +97,23 @@ go bl pl = do
                 then do putStrLn " -> Checking for the last version"
                         getLastVersionForPlatform pl
                 else (return bl)
-        let new_config = config{installed=read ls :: Int}
-        let fname = "mini_installer.exe"
-        printf " -> Getting %s\n" ls
-            >> getChromium pl ls fname
-        
-        putStrLn " -> Installing"
-        pid <- runCommand fname
-        waitForProcess pid >>= \exitWith → do
-            fileExist <- doesFileExist fname
-            when fileExist $ do
-                putStrLn " -> Clean Up"
-                removeFile fname
-            writeFile cfgFile $ writeConfig new_config
-            putStrLn " -> Done" -- AppData\Local\Chromium\Application
-            putStrLn " ========================== "
-            putStrLn ""
+        let ils = read ls :: Int
+        if (installed config) >= ils 
+            then putStrLn " -> Installed version is newer or the same"
+            else do
+                let new_config = config{installed=ils}
+                let fname = "mini_installer.exe"
+                printf " -> Getting %s\n" ls
+                    >> getChromium pl ls fname
+                
+                putStrLn " -> Installing"
+                pid <- runCommand fname
+                waitForProcess pid >>= \exitWith → do
+                    fileExist <- doesFileExist fname
+                    when fileExist $ do
+                        putStrLn " -> Clean Up"
+                        removeFile fname
+                    writeFile cfgFile $ writeConfig new_config
+                    putStrLn " -> Done" -- AppData\Local\Chromium\Application
+                    putStrLn " ========================== "
+                    putStrLn ""
