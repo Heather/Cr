@@ -53,7 +53,7 @@ getDart :: [Char] → IO()
 getDart p = case p of
     "Win" -> withSocketsDo $ do
         let tarball = "dartium-win.zip"
-        let url = "http://storage.googleapis.com/dart-editor-archive-integration/latest/dartium-win.zip"
+            url = "http://storage.googleapis.com/dart-editor-archive-integration/latest/dartium-win.zip"
         irequest <- liftIO $ parseUrl url
         withManager $ \manager → do
             let request = irequest
@@ -61,16 +61,14 @@ getDart p = case p of
             response <- http request manager
             responseBody response C.$$+- sinkFile tarball
         let src = "dartium-win"
-        let dst = "C:/dartium-win"
+            dst = "C:/dartium-win"
         dictZipFile <- B.readFile tarball
         extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
         srcExists <- doesDirectoryExist src
         dstExists <- doesDirectoryExist dst
         if or [not srcExists, dstExists] 
             then putStrLn " -> Can not copy to C:"
-            else do
-                copyDir src dst
-                    >> removeDirectoryRecursive src
-                    >> removeFile tarball
+            else copyDir src dst >> removeDirectoryRecursive src
+                                 >> removeFile tarball
     _  -> putStrLn "This platform is not supported yet :("
 {----------------------------------------------------------------------------------------}

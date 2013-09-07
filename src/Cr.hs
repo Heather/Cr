@@ -48,7 +48,7 @@ options = [
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
   ]
 
-showVersion _ = do
+showVersion _ =
     printf "\n  Cr v.%s\n\n" version
         >> exitWith ExitSuccess
     
@@ -61,12 +61,12 @@ showChromeVersion _ = do
     printf "last: %s\n" ls
         >> exitWith ExitSuccess
 
-getSrc _ = do
+getSrc _ =
     gInit "Win"
         >> fetch "chromium"
         >> exitWith ExitSuccess
         
-getDartium _ = do
+getDartium _ =
     getDart "Win"
         >> exitWith ExitSuccess
 
@@ -84,8 +84,7 @@ writeConfig = show
 
 go :: String → String → IO()
 go bl pl = do
-    let cfgFile = "Cr.cfg"
-    config <- readFile cfgFile >>= return . readConfig
+    config <- readFile "Cr.cfg" >>= return . readConfig
     case (cr config) of
      "Src" → getSrc ""
      "Dart" → getDartium ""
@@ -113,7 +112,7 @@ go bl pl = do
                     when fileExist $ do
                         putStrLn " -> Clean Up"
                         removeFile fname
-                    writeFile cfgFile $ writeConfig new_config
+                    writeFile "Cr.cfg" $ writeConfig new_config
                     putStrLn " -> Done" -- AppData\Local\Chromium\Application
                     putStrLn " ========================== "
                     putStrLn ""

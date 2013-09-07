@@ -17,11 +17,9 @@ copyDir src dst = do
     createDirectory dst
     content <- getDirectoryContents src
     let xs = filter (`notElem` [".", ".."]) content
-    forM_ xs $ \name → do
-        let srcPath = src </> name
-        let dstPath = dst </> name
-        isDirectory <- doesDirectoryExist srcPath
-        if isDirectory
-            then copyDir srcPath dstPath
-            else copyFile srcPath dstPath
+    forM_ xs $ \name → let srcPath = src </> name
+                           dstPath = dst </> name
+        in doesDirectoryExist srcPath >>= \dirExist →
+            if dirExist then copyDir srcPath dstPath
+                        else copyFile srcPath dstPath
 {----------------------------------------------------------------------------------------}

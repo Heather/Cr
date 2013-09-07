@@ -25,10 +25,9 @@ import qualified Data.ByteString.Lazy as B
 {-------------------------------  GettingGclientReady  ----------------------------------}
 gInit :: [Char] → IO()
 gInit p = case p of
-    "Win" → do
-        let src = "depot_tools"
-        let dst = "C:/depot_tools"
-        doesDirectoryExist src >>= \dirExist → unless dirExist $ do
+    "Win" → let src = "depot_tools"
+                dst = "C:/depot_tools"
+        in doesDirectoryExist src >>= \dirExist → unless dirExist $ do
             let tarball = "depot_tools.zip"
             doesFileExist tarball >>= \fileExist → unless fileExist $ do
                 putStrLn " -> Getting Depot Tools" 
@@ -39,10 +38,8 @@ gInit p = case p of
                 dstExists <- doesDirectoryExist dst
                 if or [not srcExists, dstExists] 
                     then putStrLn " -> Can not copy to C:"
-                    else do
-                        copyDir src dst
-                            >> removeDirectoryRecursive src
-                            >> removeFile tarball
+                    else copyDir src dst >> removeDirectoryRecursive src
+                                         >> removeFile tarball
             {-          Here depot_tools must be added to PATH             -}
             putStrLn "======================================================"
             putStrLn " -> NOW! Move your ass and add C:/depot_tools to PATH" 
@@ -51,8 +48,7 @@ gInit p = case p of
             getChar >> return ()
             {- I know..................................................... -}
             pid <- runCommand $ dst </> "gclient"
-            waitForProcess pid >>= \exitWith → 
-                putStrLn ""
+            waitForProcess pid >>= \exitWith → return ()
     _  → putStrLn "This platform is not supported yet :("
 {----------------------------------  gclient  -------------------------------------------}
 gClient :: [Char] → IO()
@@ -61,10 +57,10 @@ gClient args = do
     waitForProcess pid >>= \exitWith → putStrLn ""
 {----------------------------------------------------------------------------------------}
 fetch :: [Char] → IO()
-fetch project = do
+fetch project =
     let pDir = if | os `elem` ["win32", "mingw32", "cygwin32"] → "C:/" </> project
                   | otherwise → project
-    doesDirectoryExist pDir >>= \dirExist → 
+    in doesDirectoryExist pDir >>= \dirExist → 
         if dirExist
             then do createDirectory pDir
                     pid <- runCommand $ "cd " ++ pDir ++ "& C:/depot_tools/fetch " ++ project ++ " --nosvn=True"
