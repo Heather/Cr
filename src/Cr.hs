@@ -10,18 +10,37 @@ import System.Process
 import System.Exit
 import System.Console.GetOpt
 import System.Info (os)
+import System.IO (withFile, Handle, IOMode(WriteMode), hPutStr)
 
+import Control.Concurrent
 import Control.Monad
 import Control.Applicative
 
 version = "0.1.7"
 main = do
+    forkIO oneInstance
     args <- getArgs
     let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
     opts <- foldl (>>=) (return defaultOptions) actions
     let Options { optPlatform = platform,
                 optBuild = build } = opts
     build platform
+    
+oneInstance :: IO ()
+oneInstance = do
+    user <- getAppUserDataDirectory "Cr.lock"
+    locked <- doesFileExist user
+    if locked
+        then print "There is already one instance of this program running."
+        else do t <- myThreadId
+                withFile user WriteMode (do_program t)
+                removeFile user
+        
+do_program :: ThreadId -> Handle -> IO ()
+do_program t h = let s = "Locked by thread: " ++ show t
+                 in do  putStrLn s
+                        hPutStr h s
+                        threadDelay 1000000
 
 data Options = Options  {
     optPlatform  :: String,
