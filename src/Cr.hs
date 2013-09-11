@@ -16,7 +16,7 @@ import Control.Concurrent
 import Control.Monad
 import Control.Applicative
 
-version = "0.1.7"
+version = "0.1.8"
 main = do
     forkIO oneInstance
     args <- getArgs
@@ -103,7 +103,10 @@ writeConfig = show
 
 go :: String → String → IO()
 go bl pl = do
-    config <- readFile "Cr.cfg" >>= return . readConfig
+    let cfg = "Cr.cfg"
+    config <- doesFileExist cfg >>= \isCfgEx →
+                if isCfgEx then readFile cfg >>= return . readConfig
+                           else return Config{cr="Win", installed=0}
     case (cr config) of
      "Src" → getSrc ""
      "Dart" → getDartium ""
@@ -131,7 +134,7 @@ go bl pl = do
                     when fileExist $ do
                         putStrLn " -> Clean Up"
                         removeFile fname
-                    writeFile "Cr.cfg" $ writeConfig new_config
+                    writeFile cfg $ writeConfig new_config
                     putStrLn " -> Done" -- AppData\Local\Chromium\Application
                     putStrLn " ========================== "
                     putStrLn ""
