@@ -31,7 +31,7 @@ oneInstance = do
     user <- getAppUserDataDirectory "Cr.lock"
     locked <- doesFileExist user
     if locked
-        then print "There is already one instance of this program running."
+        then putStrLn "There is already one instance of this program running."
         else do t <- myThreadId
                 withFile user WriteMode (do_program t)
                 removeFile user
