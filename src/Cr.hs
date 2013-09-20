@@ -93,12 +93,12 @@ go bl pl = do
                 if isCfgEx then readFile cfg >>= return . readConfig
                            else return Config{cr="Win", installed=0}
     case (cr config) of
-     "Src" → getSrc ""
-     "Dart" → getDartium ""
-     "JustShowVersion" → showChromeVersion ""
-     _ → do {- default // Installation // -}
-        printf "\n  Cr v.%s\n\n" version  {-  Intro  -}
-        putStrLn " ========================== " 
+     "Src"                  → getSrc ""
+     "Dart"                 → getDartium ""
+     "JustShowVersion"      → showChromeVersion ""
+     _                      → do                {- default // Installation // -}
+        printf "\n  Cr v.%s\n\n" version                {-  Intro  -}
+        putStrLn " ________________________________________________________ "
         ls <- if bl == "last"
                 then do putStrLn " -> Checking for the last version"
                         getLastVersionForPlatform pl
@@ -106,20 +106,19 @@ go bl pl = do
         let ils = read ls :: Int
         if (installed config) >= ils 
             then putStrLn " -> Installed version is newer or the same"
-            else do
-                let new_config = config{installed=ils}
-                let fname = "mini_installer.exe"
-                printf " -> Getting %s\n" ls
-                    >> getChromium pl ls fname
-                
-                putStrLn " -> Installing"
-                pid <- runCommand fname
-                waitForProcess pid >>= \exitWith → do
-                    fileExist <- doesFileExist fname
-                    when fileExist $ do
-                        putStrLn " -> Clean Up"
-                        removeFile fname
-                    writeFile cfg $ writeConfig new_config
-                    putStrLn " -> Done" -- AppData\Local\Chromium\Application
-                    putStrLn " ========================== "
-                    putStrLn ""
+            else do let new_config = config{installed=ils}
+                    let fname = "mini_installer.exe"
+                    printf " -> Getting %s\n" ls
+                        >> getChromium pl ls fname
+                    
+                    putStrLn " -> Installing"
+                    pid <- runCommand fname
+                    waitForProcess pid >>= \exitWith → do
+                        fileExist <- doesFileExist fname
+                        when fileExist $ do
+                            putStrLn " -> Clean Up"
+                            removeFile fname
+                        writeFile cfg $ writeConfig new_config
+                        putStrLn " -> Done" -- AppData\Local\Chromium\Application
+                        putStrLn " ________________________________________________________ "
+                        putStrLn ""
