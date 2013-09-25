@@ -60,14 +60,14 @@ getDart p = case p of
             dst = "C:/dartium-win"
             dartium = dst ++ "\\chrome.exe"
         irequest <- liftIO $ parseUrl url
-        putStrLn " -> Getting Dartium\n"
+        putStrLn " -> Getting Dartium"
         withManager $ \manager → do
             let request = irequest
                  { method = methodGet }
             response <- http request manager
             responseBody response C.$$+- sinkFile tarball
         dictZipFile <- B.readFile tarball
-        putStrLn " -> Extracting\n"
+        putStrLn " -> Extracting"
         extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
         -- need to find extracted directory
         all <- getDirectoryContents "."
@@ -84,9 +84,9 @@ getDart p = case p of
                     else do
                         when dstExists $ removeDirectoryRecursive dst
                         copyDir src dst >> removeDirectoryRecursive src
+                        createProcess (proc dartium []) >> return ()
             _  →    if len > 1
                         then putStrLn "there are already some extracted sources, please clean-up"
                         else putStrLn "can't find extracted sources"
-        createProcess (proc dartium []) >> return ()
     _  -> putStrLn "This platform is not supported yet :("
 {----------------------------------------------------------------------------------------}
