@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
+{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf, ForeignFunctionInterface #-}
 
 import CommonDataStorage
 import Gclient
@@ -15,15 +15,33 @@ import System.IO (withFile, Handle, IOMode(WriteMode), hPutStr)
 import Control.Concurrent
 import Control.Monad
 import Control.Applicative
+import Control.Exception
 
-version = "0.2.0"
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+import System.Win32.Types
+import Graphics.Win32.GDI.Types
+import Foreign.C.String
+import Foreign.Marshal.Array
+
+foreign import stdcall unsafe "SHGetFolderPathW"
+    cSHGetFolderPathW :: HWND → INT → HANDLE → DWORD → CWString → IO LONG
+    
+maxPath = 260
+cSIDL_LOCAL_APPDATA = 0x001c -- ShlObj.h in MS Platform SDK
+
+getShellFolder :: INT → IO String
+getShellFolder csidl = allocaArray0 maxPath $ \path → do
+    cSHGetFolderPathW nullHANDLE csidl nullHANDLE 0 path
+    peekCWString path
+#endif
+
+version = "0.2.1"
 main = do
     user <- getAppUserDataDirectory "Cr.lock"
     locked <- doesFileExist user
     if locked then putStrLn "There is already one instance of this program running."
-              else do t <- myThreadId
-                      withFile user WriteMode (do_program t)
-                      removeFile user
+              else myThreadId >>= \t → withFile user WriteMode (do_program t)
+                                       `finally` removeFile user
 
 data Options = Options  {
     optPlatform  :: String,
@@ -37,7 +55,7 @@ defaultOptions = Options {
         ,
     optBuild = go "last"
   }
-do_program :: ThreadId -> Handle -> IO ()
+do_program :: ThreadId → Handle → IO ()
 do_program t h = let s = "Locked by thread: " ++ show t
                  in do  putStrLn s
                         hPutStr h s
@@ -119,6 +137,13 @@ go bl pl = do
                             putStrLn " -> Clean Up"
                             removeFile fname
                         writeFile cfg $ writeConfig new_config
-                        putStrLn " -> Done" -- AppData\Local\Chromium\Application
-                        putStrLn " ________________________________________________________ "
-                        putStrLn ""
+        putStrLn " -> Done"
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+        putStrLn " ________________________________________________________ "
+        putStrLn " -> Running"
+        getShellFolder cSIDL_LOCAL_APPDATA >>= \shellfolder → do
+            pid <- runCommand $ shellfolder ++ "\\Chromium\\Application\\chrome.exe"
+            waitForProcess pid
+#endif
+        putStrLn " ________________________________________________________ "
+        putStrLn ""

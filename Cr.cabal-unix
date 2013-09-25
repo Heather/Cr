@@ -1,5 +1,5 @@
 name: Cr
-version: 0.2.1
+version: 0.2.0
 license: BSD3
 
 build-type: Simple
@@ -23,4 +23,3 @@ Executable    Cr
     , directory
     , filepath
     , zip-archive
-    , Win32
