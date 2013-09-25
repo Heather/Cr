@@ -35,7 +35,7 @@ getShellFolder csidl = allocaArray0 maxPath $ \path → do
     peekCWString path
 #endif
 
-version = "0.2.1"
+version = "0.2.2"
 main = do
     user <- getAppUserDataDirectory "Cr.lock"
     locked <- doesFileExist user

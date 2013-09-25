@@ -9,6 +9,7 @@ module CommonDataStorage
 import Base
 
 import System.Directory
+import System.Process
 
 import Network.HTTP
 import Network.Socket
@@ -56,6 +57,8 @@ getDart p = case p of
     "Win" -> withSocketsDo $ do
         let tarball = "dartium-win.zip"
             url = "http://storage.googleapis.com/dart-editor-archive-integration/latest/dartium-win.zip"
+            dst = "C:/dartium-win"
+            dartium = dst ++ "\\chrome.exe"
         irequest <- liftIO $ parseUrl url
         putStrLn " -> Getting Dartium\n"
         withManager $ \manager → do
@@ -73,16 +76,17 @@ getDart p = case p of
         case len of
             1  → do
                 let src = head find
-                    dst = "C:/dartium-win"
                 srcExists <- doesDirectoryExist src
                 dstExists <- doesDirectoryExist dst
                 putStrLn " -> Moving to C:\n"
-                if or [not srcExists, dstExists] 
-                    then putStrLn " -> Can not copy to C:"
-                    else copyDir src dst >> removeDirectoryRecursive src
-                                         >> removeFile tarball
+                if srcExists
+                    then putStrLn $ " -> " ++ src ++ " is not directory"
+                    else do
+                        when dstExists $ removeDirectoryRecursive dst
+                        copyDir src dst >> removeDirectoryRecursive src
             _  →    if len > 1
                         then putStrLn "there are already some extracted sources, please clean-up"
                         else putStrLn "can't find extracted sources"
+        createProcess (proc dartium []) >> return ()
     _  -> putStrLn "This platform is not supported yet :("
 {----------------------------------------------------------------------------------------}
