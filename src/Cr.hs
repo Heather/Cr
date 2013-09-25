@@ -141,9 +141,9 @@ go bl pl = do
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         putStrLn " ________________________________________________________ "
         putStrLn " -> Running"
-        getShellFolder cSIDL_LOCAL_APPDATA >>= \shellfolder → do
-            pid <- runCommand $ shellfolder ++ "\\Chromium\\Application\\chrome.exe"
-            waitForProcess pid
+        getShellFolder cSIDL_LOCAL_APPDATA >>= \shellfolder →
+            let chromium = shellfolder ++ "\\Chromium\\Application\\chrome.exe"
+            in createProcess (proc chromium [])
 #endif
         putStrLn " ________________________________________________________ "
         putStrLn ""
