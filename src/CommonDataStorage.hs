@@ -14,7 +14,9 @@ import Network.HTTP
 import Network.Socket
 import Network.HTTP.Conduit
 
+import Data.List
 import Data.Conduit.Binary (sinkFile)
+
 import Network.HTTP.Conduit
 import Network.HTTP.Types
 
@@ -55,20 +57,32 @@ getDart p = case p of
         let tarball = "dartium-win.zip"
             url = "http://storage.googleapis.com/dart-editor-archive-integration/latest/dartium-win.zip"
         irequest <- liftIO $ parseUrl url
+        putStrLn " -> Getting Dartium\n"
         withManager $ \manager → do
             let request = irequest
                  { method = methodGet }
             response <- http request manager
             responseBody response C.$$+- sinkFile tarball
-        let src = "dartium-win"
-            dst = "C:/dartium-win"
         dictZipFile <- B.readFile tarball
+        putStrLn " -> Extracting\n"
         extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
-        srcExists <- doesDirectoryExist src
-        dstExists <- doesDirectoryExist dst
-        if or [not srcExists, dstExists] 
-            then putStrLn " -> Can not copy to C:"
-            else copyDir src dst >> removeDirectoryRecursive src
-                                 >> removeFile tarball
+        -- need to find extracted directory
+        all <- getDirectoryContents "."
+        let find = filter ("dartium-win-full-trunk" `isPrefixOf`) all
+            len = length find
+        case len of
+            1  → do
+                let src = head find
+                    dst = "C:/dartium-win"
+                srcExists <- doesDirectoryExist src
+                dstExists <- doesDirectoryExist dst
+                putStrLn " -> Moving to C:\n"
+                if or [not srcExists, dstExists] 
+                    then putStrLn " -> Can not copy to C:"
+                    else copyDir src dst >> removeDirectoryRecursive src
+                                         >> removeFile tarball
+            _  →    if len > 1
+                        then putStrLn "there are already some extracted sources, please clean-up"
+                        else putStrLn "can't find extracted sources"
     _  -> putStrLn "This platform is not supported yet :("
 {----------------------------------------------------------------------------------------}
