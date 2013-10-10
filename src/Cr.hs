@@ -1,7 +1,11 @@
-{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf, ForeignFunctionInterface #-}
+{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
 
 import CommonDataStorage
 import Gclient
+
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+import Win
+#endif
 
 import Text.Printf
 import System.Environment( getArgs )
@@ -17,25 +21,7 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-import System.Win32.Types
-import Graphics.Win32.GDI.Types
-import Foreign.C.String
-import Foreign.Marshal.Array
-
-foreign import stdcall unsafe "SHGetFolderPathW"
-    cSHGetFolderPathW :: HWND → INT → HANDLE → DWORD → CWString → IO LONG
-    
-maxPath = 260
-cSIDL_LOCAL_APPDATA = 0x001c -- ShlObj.h in MS Platform SDK
-
-getShellFolder :: INT → IO String
-getShellFolder csidl = allocaArray0 maxPath $ \path → do
-    cSHGetFolderPathW nullHANDLE csidl nullHANDLE 0 path
-    peekCWString path
-#endif
-
-version = "0.2.2"
+version = "0.2.3"
 main = do
     user <- getAppUserDataDirectory "Cr.lock"
     locked <- doesFileExist user
@@ -138,12 +124,14 @@ go bl pl = do
                             removeFile fname
                         writeFile cfg $ writeConfig new_config
         putStrLn " -> Done"
+
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         putStrLn " ________________________________________________________ "
         putStrLn " -> Running"
-        getShellFolder cSIDL_LOCAL_APPDATA >>= \shellfolder →
+        getShellFolder >>= \shellfolder →
             let chromium = shellfolder ++ "\\Chromium\\Application\\chrome.exe"
             in createProcess (proc chromium [])
 #endif
+
         putStrLn " ________________________________________________________ "
         putStrLn ""
