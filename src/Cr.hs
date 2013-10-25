@@ -1,7 +1,6 @@
 {-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
 
 import CommonDataStorage
-import Gclient
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import Win
@@ -21,7 +20,7 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-version = "0.2.3"
+version = "0.2.4"
 main = do
     user <- getAppUserDataDirectory "Cr.lock"
     locked <- doesFileExist user
@@ -57,7 +56,6 @@ options = [
     Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
-    Option ['s'] ["src"]     (NoArg getSrc) "Get chromium sources",
     Option ['d'] ["dartium"] (NoArg getDartium) "Get dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
@@ -73,9 +71,6 @@ showChromeVersion _ = do
     ls <- getLastVersionForPlatform "Win"
     printf "last: %s\n" ls
         >> exitWith ExitSuccess
-
-getSrc _ = gInit "Win" >> fetch "chromium"
-                       >> exitWith ExitSuccess
 
 getDartium _ = getDart "Win" >> exitWith ExitSuccess
 
@@ -97,7 +92,6 @@ go bl pl = do
                 if isCfgEx then readFile cfg >>= return . readConfig
                            else return Config{cr="Win", installed=0}
     case (cr config) of
-     "Src"                  → getSrc ""
      "Dart"                 → getDartium ""
      "JustShowVersion"      → showChromeVersion ""
      _                      → do                {- default // Installation // -}

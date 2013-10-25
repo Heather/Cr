@@ -6,8 +6,8 @@ module CommonDataStorage
   , getDart
   ) where
 
-import Base
-
+import System.IO
+import System.Exit
 import System.Directory
 import System.Process
 
@@ -30,6 +30,19 @@ import Control.Monad.IO.Class (liftIO)
 
 import Codec.Archive.Zip
 import qualified Data.ByteString.Lazy as B
+
+import System.FilePath((</>))
+{-------------------------------------------------------------------------------------}
+copyDir ::  FilePath → FilePath → IO ()
+copyDir src dst = do
+    createDirectory dst
+    content <- getDirectoryContents src
+    let xs = filter (`notElem` [".", ".."]) content
+    forM_ xs $ \name → let srcPath = src </> name
+                           dstPath = dst </> name
+        in doesDirectoryExist srcPath >>= \dirExist →
+            if dirExist then copyDir srcPath dstPath
+                        else copyFile srcPath dstPath
 {------------------------- Last Chromium Version --------------------------------------}
 getLastVersionForPlatform :: [Char] → IO String
 getLastVersionForPlatform p = withSocketsDo
@@ -69,7 +82,6 @@ getDart p = case p of
         dictZipFile <- B.readFile tarball
         putStrLn " -> Extracting"
         extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
-        -- need to find extracted directory
         all <- getDirectoryContents "."
         let find = filter ("dartium-win-full-trunk" `isPrefixOf`) all
             len = length find
