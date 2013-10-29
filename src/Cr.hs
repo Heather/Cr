@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, CPP, MultiWayIf #-}
+{-# LANGUAGE CPP, MultiWayIf #-}
 
 import CommonDataStorage
 
@@ -20,27 +20,27 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-version = "0.2.4"
+version = "0.2.5"
 main = do
     user <- getAppUserDataDirectory "Cr.lock"
     locked <- doesFileExist user
     if locked then putStrLn "There is already one instance of this program running."
-              else myThreadId >>= \t → withFile user WriteMode (do_program t)
+              else myThreadId >>= \t -> withFile user WriteMode (do_program t)
                                        `finally` removeFile user
 
 data Options = Options  {
     optPlatform  :: String,
-    optBuild :: String → IO()
+    optBuild :: String -> IO()
   }
 defaultOptions :: Options
 defaultOptions = Options {
-    optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] → "Win"
-                     | os `elem` ["darwin"] → "Mac"
-                     | otherwise → "Linux"
+    optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] -> "Win"
+                     | os `elem` ["darwin"] -> "Mac"
+                     | otherwise -> "Linux"
         ,
     optBuild = go "last"
   }
-do_program :: ThreadId → Handle → IO ()
+do_program :: ThreadId -> Handle -> IO ()
 do_program t h = let s = "Locked by thread: " ++ show t
                  in do  putStrLn s
                         hPutStr h s
@@ -51,7 +51,7 @@ do_program t h = let s = "Locked by thread: " ++ show t
                                     optBuild = build } = opts
                         build platform
 
-options :: [OptDescr (Options → IO Options)]
+options :: [OptDescr (Options -> IO Options)]
 options = [
     Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
@@ -80,21 +80,21 @@ getb arg opt = return opt { optBuild = go arg }
 data Config = Config { cr :: String
                      , installed  :: Int
     } deriving (Read, Show)
-readConfig :: String → Config
+readConfig :: String -> Config
 readConfig = read
-writeConfig :: Config → String
+writeConfig :: Config -> String
 writeConfig = show
 
-go :: String → String → IO()
+go :: String -> String -> IO()
 go bl pl = do
     let cfg = "Cr.cfg"
-    config <- doesFileExist cfg >>= \isCfgEx →
+    config <- doesFileExist cfg >>= \isCfgEx ->
                 if isCfgEx then readFile cfg >>= return . readConfig
                            else return Config{cr="Win", installed=0}
     case (cr config) of
-     "Dart"                 → getDartium ""
-     "JustShowVersion"      → showChromeVersion ""
-     _                      → do                {- default // Installation // -}
+     "Dart"                 -> getDartium ""
+     "JustShowVersion"      -> showChromeVersion ""
+     _                      -> do                {- default // Installation // -}
         printf "\n  Cr v.%s\n\n" version                {-  Intro  -}
         putStrLn " ________________________________________________________ "
         ls <- if bl == "last"
@@ -111,7 +111,7 @@ go bl pl = do
                     
                     putStrLn " -> Installing"
                     pid <- runCommand fname
-                    waitForProcess pid >>= \exitWith → do
+                    waitForProcess pid >>= \exitWith -> do
                         fileExist <- doesFileExist fname
                         when fileExist $ do
                             putStrLn " -> Clean Up"
@@ -122,7 +122,7 @@ go bl pl = do
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         putStrLn " ________________________________________________________ "
         putStrLn " -> Running"
-        getShellFolder >>= \shellfolder →
+        getShellFolder >>= \shellfolder ->
             let chromium = shellfolder ++ "\\Chromium\\Application\\chrome.exe"
             in createProcess (proc chromium [])
 #endif

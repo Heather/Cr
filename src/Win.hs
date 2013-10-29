@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
 
 module Win
   ( getShellFolder
@@ -10,14 +10,14 @@ import Foreign.C.String
 import Foreign.Marshal.Array
 
 foreign import stdcall unsafe "SHGetFolderPathW"
-    cSHGetFolderPathW :: HWND → INT → HANDLE → DWORD → CWString → IO LONG
+    cSHGetFolderPathW :: HWND -> INT -> HANDLE -> DWORD -> CWString -> IO LONG
     
 maxPath = 260
 cSIDL_LOCAL_APPDATA = 0x001c -- ShlObj.h in MS Platform SDK
 
 {------------------------------------  getShellFolder  ----------------------------------}
 getShellFolder :: IO String
-getShellFolder = allocaArray0 maxPath $ \path → do
+getShellFolder = allocaArray0 maxPath $ \path -> do
     cSHGetFolderPathW nullHANDLE cSIDL_LOCAL_APPDATA nullHANDLE 0 path
     peekCWString path
 {----------------------------------------------------------------------------------------}

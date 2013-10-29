@@ -1,5 +1,5 @@
 name: Cr
-version: 0.2.4
+version: 0.2.5
 license: BSD3
 
 build-type: Simple
@@ -8,7 +8,6 @@ cabal-version: >= 1.6
 Executable    Cr
   Main-Is:    Cr.hs
   Hs-Source-Dirs: src
-  Extensions: UnicodeSyntax
   Build-Depends:
       base
     , bytestring
