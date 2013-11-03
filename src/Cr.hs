@@ -8,25 +8,31 @@ import Win
 
 import Text.Printf
 import System.Environment( getArgs )
+import System.Info (os)
 import System.Directory
 import System.Process
 import System.Exit
 import System.Console.GetOpt
-import System.Info (os)
-import System.IO (withFile, Handle, IOMode(WriteMode), hPutStr)
+import System.IO
 
 import Control.Concurrent
 import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-version = "0.2.5"
-main = do
-    user <- getAppUserDataDirectory "Cr.lock"
-    locked <- doesFileExist user
-    if locked then putStrLn "There is already one instance of this program running."
-              else myThreadId >>= \t -> withFile user WriteMode (do_program t)
-                                       `finally` removeFile user
+version = "0.2.6"
+main = do user <- getAppUserDataDirectory "Cr.lock"
+          locked <- doesFileExist user
+          let run = myThreadId >>= \t -> withFile user WriteMode (do_program t)
+                                           `finally` removeFile user
+          if locked then do
+                        putStrLn "There is already one instance of this program running."
+                        putStrLn "Remove lock and start application? (Y/N)"
+                        hFlush stdout
+                        str <- getLine
+                        if | str `elem` ["Y", "y"] -> run
+                           | otherwise             -> return ()
+                      else run
 
 data Options = Options  {
     optPlatform  :: String,
