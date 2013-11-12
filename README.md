@@ -1,6 +1,8 @@
 Cr
 ==
 
+[![Build Status](https://travis-ci.org/Heather/Cr.png?branch=master)](https://travis-ci.org/Heather/Cr)
+
 Smart chromium installer / updater
 
 Binary
