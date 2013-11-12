@@ -1,4 +1,6 @@
 language: haskell
+notifications:
+  email: false
 haskell:
   - ghc-7.6.3
   - ghc-7.6.2
