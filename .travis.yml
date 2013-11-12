@@ -1,2 +1,3 @@
 language: haskell
+install: echo hi
 script: make all_linux
