@@ -3,9 +3,10 @@
 all:        clean | Cr
 all_linux:  clean | linux
 
-linux: sed | Cr
+linux: dosed | Cr
 
-sed: sed '/Win32/d' Cr.cabal
+dosed:
+	sed '/Win32/d' Cr.cabal
 
 Cr:
 	cabal install --only-dependencies
