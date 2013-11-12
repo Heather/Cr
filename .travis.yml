@@ -1,3 +1,7 @@
 language: haskell
+haskell:
+  - ghc-7.6.3
+  - ghc-7.6.2
+  - hp-2013.2.0.0
 install: echo hi
 script: make all_linux
