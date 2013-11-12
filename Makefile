@@ -1,4 +1,4 @@
-.PHONY: all clean linux
+.PHONY: all all_linux clean linux
 
 all:        clean | Cr
 all_linux:  clean | linux
