@@ -9,9 +9,9 @@ dosed:
 	sed -i '/Win32/d' Cr.cabal
 
 Cr:
-	cabal install --only-dependencies
-	cabal configure
-	cabal build
+	cabal-1.18 install --only-dependencies
+	cabal-1.18 configure
+	cabal-1.18 build
 
 clean:
 	@echo " --- Clean binaries --- "
