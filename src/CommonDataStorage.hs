@@ -44,14 +44,18 @@ copyDir src dst = do
 {------------------------- Last Chromium Version --------------------------------------}
 getLastVersionForPlatform :: [Char] -> IO String
 getLastVersionForPlatform p = withSocketsDo
-    $   let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" ++ p ++ "/LAST_CHANGE"
+    $   let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
+                  ++ p 
+                  ++ "/LAST_CHANGE"
         in simpleHttp url
             >>= \bs -> return $ S.decode $ L.unpack bs
 {-------------------------  Chromium  --------------------------------------}
 getChromium :: [Char] -> [Char] -> [Char] -> IO()
 getChromium p v fname = withSocketsDo $ do
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-                        ++ p ++ "/" ++ v ++ "/" ++ fname
+              ++ p ++ "/" 
+              ++ v ++ "/" 
+              ++ fname
     irequest <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
     when fileExist $ do
@@ -66,9 +70,11 @@ getChromium p v fname = withSocketsDo $ do
 getDart :: [Char] -> IO()
 getDart p = withSocketsDo $ do
     let tarball = "dartium-win.zip"
-        url = "http://storage.googleapis.com/dart-editor-archive-integration/latest/" ++ tarball
-        dst = "C:/dartium-win"
-        dartium = dst ++ "\\chrome.exe"
+        dst     = "C:/dartium-win"
+        dartium = dst
+                  ++ "\\chrome.exe"
+        url     = "http://storage.googleapis.com/dart-editor-archive-integration/latest/" 
+                  ++ tarball
     irequest <- liftIO $ parseUrl url
     putStrLn " -> Getting Dartium"
     withManager $ \manager -> do

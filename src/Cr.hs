@@ -20,7 +20,6 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-version = "0.2.6"
 main = do user <- getAppUserDataDirectory "Cr.lock"
           locked <- doesFileExist user
           let run = myThreadId >>= \t -> withFile user WriteMode (do_program t)
@@ -59,26 +58,19 @@ do_program t h = let s = "Locked by thread: " ++ show t
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
-    Option ['v'] ["version"] (NoArg showVersion) "show Cr version number",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['d'] ["dartium"] (NoArg getDartium) "Get dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
   ]
-
-showVersion _ = printf "\n  Cr v.%s\n\n" version
-                    >> exitWith ExitSuccess
-    
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
-  
+
 showChromeVersion _ = do
     ls <- getLastVersionForPlatform "Win"
-    printf "last: %s\n" ls
-        >> exitWith ExitSuccess
-
-getDartium _ = getDart "Win" >> exitWith ExitSuccess
+    printf "last: %s\n" ls      >> exitWith ExitSuccess
+getDartium _ = getDart "Win"    >> exitWith ExitSuccess
 
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
@@ -100,8 +92,11 @@ go bl pl = do
     case (cr config) of
      "Dart"                 -> getDartium ""
      "JustShowVersion"      -> showChromeVersion ""
-     _                      -> do                {- default // Installation // -}
-        printf "\n  Cr v.%s\n\n" version                {-  Intro  -}
+     _                      -> do
+        putStrLn " ________________________________________________________ "
+        putStrLn "          And who the hell do you think I've become?      "
+        putStrLn "  Like the person inside, I've been opening up.           "
+        putStrLn "                            I'm onto you. (I'm onto you.) "
         putStrLn " ________________________________________________________ "
         ls <- if bl == "last"
                 then do putStrLn " -> Checking for the last version"
@@ -132,6 +127,10 @@ go bl pl = do
             let chromium = shellfolder ++ "\\Chromium\\Application\\chrome.exe"
             in createProcess (proc chromium [])
 #endif
-
+        putStrLn " ________________________________________________________ "
+        putStrLn " Cut out your tongue and feed it to the liars.            "
+        putStrLn "     Black hearts shed light on dying words.              "
+        putStrLn "                                                          "
+        putStrLn "                                 I wanna feel you burn.   "
         putStrLn " ________________________________________________________ "
         putStrLn ""

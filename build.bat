@@ -1,21 +1,22 @@
-@echo off
+                                @echo off
 
-echo ---------------------------
-echo   Dependencies check
-echo ---------------------------
+echo        Stone word backfire with vengeance
+                            echo                Hopeless divine intervention
+                    
+  cabal           install --only-dependencies
 
-cabal install --only-dependencies
+echo                            Leader, where's the peace you pursue
+                                       echo    Can't let any more follow you
 
-echo ---------------------------
-echo   Configure
-echo ---------------------------
+          cabal configure
 
-cabal configure
+echo            Teach to bleach the stains of your guilt
+echo        Envy of moral free lives built
+echo                        Live with the torment that they live through
 
-echo ---------------------------
-echo   Build
-echo ---------------------------
+          cabal  build
 
-cabal build
+                       echo  Your sins will only rest on you
 
 pause
+                                               echo wow...
