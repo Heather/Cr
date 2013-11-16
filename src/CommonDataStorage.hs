@@ -87,7 +87,7 @@ getDart p = withSocketsDo $ do
     extractFilesFromArchive [OptVerbose] $ toArchive dictZipFile
     all <- getDirectoryContents "."
     let find = filter ("dartium-win-full-trunk" `isPrefixOf`) all
-        len = length find
+        len  = length find
     case len of
         1 -> do
             let src = head find
