@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP, MultiWayIf #-}
 
 import CommonDataStorage
+import Mozilla
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import Win
@@ -19,6 +20,8 @@ import Control.Concurrent
 import Control.Monad
 import Control.Applicative
 import Control.Exception
+
+import System.FilePath((</>))
 
 main = do user <- getAppUserDataDirectory "Cr.lock"
           locked <- doesFileExist user
@@ -83,21 +86,66 @@ readConfig = read
 writeConfig :: Config -> String
 writeConfig = show
 
+cSwrap = bracket_
+     ( do
+            putStrLn " ________________________________________________________ "
+            putStrLn "          And who the hell do you think I've become?      "
+            putStrLn "  Like the person inside, I've been opening up.           "
+            putStrLn "                            I'm onto you. (I'm onto you.) "
+            putStrLn " ________________________________________________________ "
+    )( do
+            putStrLn " ________________________________________________________ "
+            putStrLn " Cut out your tongue and feed it to the liars.            "
+            putStrLn "     Black hearts shed light on dying words.              "
+            putStrLn "                                                          "
+            putStrLn "                                 I wanna feel you burn.   "
+            putStrLn " ________________________________________________________ "
+            putStrLn ""
+    )
+
 go :: String -> String -> IO()
 go bl pl = do
     let cfg = "Cr.cfg"
     config <- doesFileExist cfg >>= \isCfgEx ->
                 if isCfgEx then readFile cfg >>= return . readConfig
-                           else return Config{cr="Win", installed=0}
+                           else return Config{cr="Chromium", installed=0}
     case (cr config) of
+     "ShowChromeVersion"    -> showChromeVersion ""
      "Dart"                 -> getDartium ""
-     "JustShowVersion"      -> showChromeVersion ""
-     _                      -> do
+     "UX"                   -> cSwrap $ do
+        let basedir = "D:\\Program Files\\UX" -- TODO --
+            ux = basedir </> "firefox.exe"
+        exeExist <- doesFileExist ux
+        if exeExist
+            then 
+                let updater = basedir </> "updater.exe"
+                in createProcess (proc updater []) >> return ()
+            else do
+                ls <- if bl == "last"
+                        then do putStrLn " -> Checking for the last version"
+                                return "28.0a1" -- TODO --
+                        else (return bl)
+                let ils = read ls :: Int
+                if (installed config) >= ils 
+                    then putStrLn " -> Installed version is newer or the same"
+                    else do let new_config = config{installed=ils}
+                                fname = "firefox-" ++ ls ++ ".en-US.win32.installer.exe"
+                            printf " -> Getting %s\n" ls
+                                >> getUX fname
+
+                            putStrLn " -> Installing"
+                            pid <- runCommand fname
+                            waitForProcess pid >>= \exitWith -> do
+                                fileExist <- doesFileExist fname
+                                when fileExist $ do
+                                    putStrLn " -> Clean Up"
+                                    removeFile fname
         putStrLn " ________________________________________________________ "
-        putStrLn "          And who the hell do you think I've become?      "
-        putStrLn "  Like the person inside, I've been opening up.           "
-        putStrLn "                            I'm onto you. (I'm onto you.) "
-        putStrLn " ________________________________________________________ "
+        when exeExist $ do
+            printf " -> Running"
+                >> createProcess (proc ux [])
+                >> return ()
+     _  -> cSwrap $ do                -- Chromium --
         ls <- if bl == "last"
                 then do putStrLn " -> Checking for the last version"
                         getLastVersionForPlatform pl
@@ -109,7 +157,7 @@ go bl pl = do
                     let fname = "mini_installer.exe"
                     printf " -> Getting %s\n" ls
                         >> getChromium pl ls fname
-                    
+
                     putStrLn " -> Installing"
                     pid <- runCommand fname
                     waitForProcess pid >>= \exitWith -> do
@@ -118,19 +166,10 @@ go bl pl = do
                             putStrLn " -> Clean Up"
                             removeFile fname
                         writeFile cfg $ writeConfig new_config
-        putStrLn " -> Done"
-
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         putStrLn " ________________________________________________________ "
         putStrLn " -> Running"
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         getShellFolder >>= \shellfolder ->
-            let chromium = shellfolder ++ "\\Chromium\\Application\\chrome.exe"
-            in createProcess (proc chromium [])
+            let chromium = shellfolder </> "Chromium\\Application\\chrome.exe"
+            in createProcess (proc chromium []) >> return ()
 #endif
-        putStrLn " ________________________________________________________ "
-        putStrLn " Cut out your tongue and feed it to the liars.            "
-        putStrLn "     Black hearts shed light on dying words.              "
-        putStrLn "                                                          "
-        putStrLn "                                 I wanna feel you burn.   "
-        putStrLn " ________________________________________________________ "
-        putStrLn ""
