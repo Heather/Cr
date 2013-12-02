@@ -8,6 +8,8 @@ import Win
 #endif
 
 import Text.Printf
+import Text.Show
+
 import System.Environment( getArgs )
 import System.Info (os)
 import System.Directory
@@ -148,14 +150,19 @@ go bl pl = do
      _  -> cSwrap $ do                -- Chromium --
         ls <- if bl == "last"
                 then do putStrLn " -> Checking for the last version"
-                        getLastVersionForPlatform pl
+                        r <- try (getLastVersionForPlatform pl)
+                                :: IO (Either SomeException String)
+                        case r of
+                            Left what -> do putStrLn $ show what
+                                            return   $ show (installed config)
+                            Right val -> return val
                 else (return bl)
         let ils = read ls :: Int
         if (installed config) >= ils 
             then putStrLn " -> Installed version is newer or the same"
             else do let new_config = config{installed=ils}
                     let fname = "mini_installer.exe"
-                    printf " -> Getting %s\n" ls
+                    printf " -> Downloading %s\n" ls
                         >> getChromium pl ls fname
 
                     putStrLn " -> Installing"
