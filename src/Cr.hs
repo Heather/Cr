@@ -42,6 +42,7 @@ data Options = Options  {
     optPlatform  :: String,
     optBuild :: String -> IO()
   }
+
 defaultOptions :: Options
 defaultOptions = Options {
     optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] -> "Win"
@@ -50,6 +51,7 @@ defaultOptions = Options {
         ,
     optBuild = go "last"
   }
+
 do_program :: ThreadId -> Handle -> IO ()
 do_program t h = let s = "Locked by thread: " ++ show t
                  in do  putStrLn s
