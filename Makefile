@@ -1,3 +1,7 @@
+# Note that it's not real makefile...
+# e.g. it's real makefile
+# but it designed for travis
+
 .PHONY: all all_linux clean linux
 
 all:        clean | Cr

@@ -11,6 +11,8 @@ Binary
  - Run Cr
  - That's all, chromium is updated to last version or installed.
 
+![](src\Carly.jpg?raw=true)
+
 ```haskell
 getChromium :: [Char] → [Char] → IO()
 getChromium s v = withSocketsDo $ do

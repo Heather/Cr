@@ -1,5 +1,6 @@
 notifications:
   email: false
+  irc: "chat.freenode.net#Heather"
 
 env:
  - GHCVER=7.6.1
