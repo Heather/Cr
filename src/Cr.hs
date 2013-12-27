@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP, MultiWayIf #-}
 
 import CommonDataStorage
-import Mozilla
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import Win
@@ -76,8 +75,8 @@ showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
 
 showChromeVersion _ = do
     ls <- getLastVersionForPlatform "Win"
-    printf "last: %s\n" ls      >> exitWith ExitSuccess
-getDartium _ = getDart "Win"    >> exitWith ExitSuccess
+    printf "last: %s\n" ls  >> exitWith ExitSuccess
+getDartium _ = getDart      >> exitWith ExitSuccess
 
 getp arg opt = return opt { optPlatform = arg }
 getb arg opt = return opt { optBuild = go arg }
@@ -114,42 +113,8 @@ go bl pl = do
                 if isCfgEx then readFile cfg >>= return . readConfig
                            else return Config{cr="Chromium", installed=0}
     case (cr config) of
-     "ShowChromeVersion"    -> showChromeVersion ""
-     "Dart"                 -> getDartium ""
-     "UX"                   -> cSwrap $ do
-        let basedir = "D:\\Program Files\\UX" -- TODO --
-            ux = basedir </> "firefox.exe"
-        exeExist <- doesFileExist ux
-        if exeExist
-            then 
-                let updater = basedir </> "updater.exe"
-                in createProcess (proc updater []) >> return ()
-            else do
-                ls <- if bl == "last"
-                        then do putStrLn " -> Checking for the last version"
-                                return "28.0a1" -- TODO --
-                        else (return bl)
-                let ils = read ls :: Int
-                if (installed config) >= ils 
-                    then putStrLn " -> Installed version is newer or the same"
-                    else do let new_config = config{installed=ils}
-                                fname = "firefox-" ++ ls ++ ".en-US.win32.installer.exe"
-                            printf " -> Getting %s\n" ls
-                                >> getUX fname
-
-                            putStrLn " -> Installing"
-                            pid <- runCommand fname
-                            waitForProcess pid >>= \exitWith -> do
-                                fileExist <- doesFileExist fname
-                                when fileExist $ do
-                                    putStrLn " -> Clean Up"
-                                    removeFile fname
-        putStrLn " ________________________________________________________ "
-        when exeExist $ do
-            printf " -> Running"
-                >> createProcess (proc ux [])
-                >> return ()
-     _  -> cSwrap $ do                -- Chromium --
+     "Dart" -> getDartium()
+     _      -> cSwrap $ do              -- Chromium --
         ls <- if bl == "last"
                 then do putStrLn " -> Checking for the last version"
                         r <- try (getLastVersionForPlatform pl)
@@ -175,8 +140,10 @@ go bl pl = do
                             putStrLn " -> Clean Up"
                             removeFile fname
                         writeFile cfg $ writeConfig new_config
+
         putStrLn " ________________________________________________________ "
         putStrLn " -> Running"
+
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         getShellFolder >>= \shellfolder ->
             let chromium = shellfolder </> "Chromium\\Application\\chrome.exe"

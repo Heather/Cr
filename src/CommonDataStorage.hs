@@ -67,8 +67,8 @@ getChromium p v fname = withSocketsDo $ do
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
 {----------------------------------------------------------------------------------------}
-getDart :: [Char] -> IO()
-getDart p = withSocketsDo $ do
+getDart :: IO()
+getDart = withSocketsDo $ do
     let tarball = "dartium-win.zip"
         dst     = "C:/dartium-win"
         dartium = dst
