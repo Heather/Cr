@@ -39,7 +39,8 @@ main = do user <- getAppUserDataDirectory "Cr.lock"
 
 data Options = Options  {
     optPlatform  :: String,
-    optBuild :: String -> IO()
+    optForce :: Bool,
+    optBuild :: String ->  Bool -> IO()
   }
 
 defaultOptions :: Options
@@ -48,6 +49,7 @@ defaultOptions = Options {
                      | os `elem` ["darwin"] -> "Mac"
                      | otherwise -> "Linux"
         ,
+    optForce = False,
     optBuild = go "last"
   }
 
@@ -58,9 +60,10 @@ do_program t h = let s = "Locked by thread: " ++ show t
                         args <- getArgs
                         let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
                         opts <- foldl (>>=) (return defaultOptions) actions
-                        let Options { optPlatform = platform,
-                                    optBuild = build } = opts
-                        build platform
+                        let Options { optPlatform   = platform,
+                                      optBuild      = build,
+                                      optForce      = force } = opts
+                        build platform force
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
@@ -68,7 +71,8 @@ options = [
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['d'] ["dartium"] (NoArg getDartium) "Get dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
-    Option ['b'] ["build"]   (ReqArg getb "STRING") "build number"
+    Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
+    Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed"
   ]
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
@@ -78,8 +82,9 @@ showChromeVersion _ = do
     printf "last: %s\n" ls  >> exitWith ExitSuccess
 getDartium _ = getDart      >> exitWith ExitSuccess
 
-getp arg opt = return opt { optPlatform = arg }
-getb arg opt = return opt { optBuild = go arg }
+getp arg opt        = return opt { optPlatform = arg }
+getb arg opt        = return opt { optBuild = go arg }
+forceReinstall opt  = return opt { optForce = True }
 
 data Config = Config { cr :: String
                      , installed  :: Int
@@ -106,8 +111,8 @@ cSwrap = bracket_
             putStrLn ""
     )
 
-go :: String -> String -> IO()
-go bl pl = do
+go :: String -> String -> Bool -> IO()
+go bl pl force = do
     let cfg = "Cr.cfg"
     config <- doesFileExist cfg >>= \isCfgEx ->
                 if isCfgEx then readFile cfg >>= return . readConfig
@@ -125,7 +130,7 @@ go bl pl = do
                             Right val -> return val
                 else (return bl)
         let ils = read ls :: Int
-        if (installed config) >= ils 
+        if (installed config) >= ils && not force
             then putStrLn " -> Installed version is newer or the same"
             else do let new_config = config{installed=ils}
                     let fname = "mini_installer.exe"
