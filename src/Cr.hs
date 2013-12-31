@@ -67,27 +67,26 @@ do_program t h = let s = "Locked by thread: " ++ show t
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
+    Option ['v'] ["version"] (NoArg showV) "Display Version",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
-    Option ['d'] ["dartium"] (NoArg getDartium) "Get dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed"
   ]
+showV _    =    printf "Cr 0.2.8" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
 showChromeVersion _ = do
     ls <- getLastVersionForPlatform "Win"
     printf "last: %s\n" ls  >> exitWith ExitSuccess
-getDartium _ = getDart      >> exitWith ExitSuccess
 
 getp arg opt        = return opt { optPlatform = arg }
 getb arg opt        = return opt { optBuild = go arg }
 forceReinstall opt  = return opt { optForce = True }
 
-data Config = Config { cr :: String
-                     , installed  :: Int
+data Config = Config { installed  :: Int
     } deriving (Read, Show)
 readConfig :: String -> Config
 readConfig = read
@@ -116,10 +115,8 @@ go bl pl force = do
     let cfg = "Cr.cfg"
     config <- doesFileExist cfg >>= \isCfgEx ->
                 if isCfgEx then readFile cfg >>= return . readConfig
-                           else return Config{cr="Chromium", installed=0}
-    case (cr config) of
-     "Dart" -> getDartium()
-     _      -> cSwrap $ do              -- Chromium --
+                           else return Config{installed=0}
+    cSwrap $ do
         ls <- if bl == "last"
                 then do putStrLn " -> Checking for the last version"
                         r <- try (getLastVersionForPlatform pl)
