@@ -40,7 +40,8 @@ main = do user <- getAppUserDataDirectory "Cr.lock"
 data Options = Options  {
     optPlatform  :: String,
     optForce :: Bool,
-    optBuild :: String ->  Bool -> IO()
+    optRun :: Bool,
+    optBuild :: String ->  Bool -> Bool -> IO()
   }
 
 defaultOptions :: Options
@@ -50,6 +51,7 @@ defaultOptions = Options {
                      | otherwise -> "Linux"
         ,
     optForce = False,
+    optRun   = False,
     optBuild = go "last"
   }
 
@@ -62,8 +64,9 @@ do_program t h = let s = "Locked by thread: " ++ show t
                         opts <- foldl (>>=) (return defaultOptions) actions
                         let Options { optPlatform   = platform,
                                       optBuild      = build,
-                                      optForce      = force } = opts
-                        build platform force
+                                      optForce      = force,
+                                      optRun        = run } = opts
+                        build platform force run
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
@@ -72,9 +75,10 @@ options = [
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
-    Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed"
+    Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
+    Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
   ]
-showV _    =    printf "Cr 0.2.8" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.2.9" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -85,6 +89,7 @@ showChromeVersion _ = do
 getp arg opt        = return opt { optPlatform = arg }
 getb arg opt        = return opt { optBuild = go arg }
 forceReinstall opt  = return opt { optForce = True }
+justRun opt         = return opt { optRun = True }
 
 data Config = Config { installed  :: Int
     } deriving (Read, Show)
@@ -110,38 +115,39 @@ cSwrap = bracket_
             putStrLn ""
     )
 
-go :: String -> String -> Bool -> IO()
-go bl pl force = do
-    let cfg = "Cr.cfg"
-    config <- doesFileExist cfg >>= \isCfgEx ->
-                if isCfgEx then readFile cfg >>= return . readConfig
-                           else return Config{installed=0}
-    cSwrap $ do
-        ls <- if bl == "last"
-                then do putStrLn " -> Checking for the last version"
-                        r <- try (getLastVersionForPlatform pl)
-                                :: IO (Either SomeException String)
-                        case r of
-                            Left what -> do putStrLn $ show what
-                                            return   $ show (installed config)
-                            Right val -> return val
-                else (return bl)
-        let ils = read ls :: Int
-        if (installed config) >= ils && not force
-            then putStrLn " -> Installed version is newer or the same"
-            else do let new_config = config{installed=ils}
-                    let fname = "mini_installer.exe"
-                    printf " -> Downloading %s\n" ls
-                        >> getChromium pl ls fname
+go :: String -> String -> Bool -> Bool -> IO()
+go bl pl force run = do
+    when (not run) $ do
+        let cfg = "Cr.cfg"
+        config <- doesFileExist cfg >>= \isCfgEx ->
+                    if isCfgEx then readFile cfg >>= return . readConfig
+                               else return Config{installed=0}
+        cSwrap $ do
+            ls <- if bl == "last"
+                    then do putStrLn " -> Checking for the last version"
+                            r <- try (getLastVersionForPlatform pl)
+                                    :: IO (Either SomeException String)
+                            case r of
+                                Left what -> do putStrLn $ show what
+                                                return   $ show (installed config)
+                                Right val -> return val
+                    else (return bl)
+            let ils = read ls :: Int
+            if (installed config) >= ils && not force
+                then putStrLn " -> Installed version is newer or the same"
+                else do let new_config = config{installed=ils}
+                        let fname = "mini_installer.exe"
+                        printf " -> Downloading %s\n" ls
+                            >> getChromium pl ls fname
 
-                    putStrLn " -> Installing"
-                    pid <- runCommand fname
-                    waitForProcess pid >>= \exitWith -> do
-                        fileExist <- doesFileExist fname
-                        when fileExist $ do
-                            putStrLn " -> Clean Up"
-                            removeFile fname
-                        writeFile cfg $ writeConfig new_config
+                        putStrLn " -> Installing"
+                        pid <- runCommand fname
+                        waitForProcess pid >>= \exitWith -> do
+                            fileExist <- doesFileExist fname
+                            when fileExist $ do
+                                putStrLn " -> Clean Up"
+                                removeFile fname
+                            writeFile cfg $ writeConfig new_config
 
         putStrLn " ________________________________________________________ "
         putStrLn " -> Running"
