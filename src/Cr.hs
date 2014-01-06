@@ -149,11 +149,11 @@ go bl pl force run = do
                                 removeFile fname
                             writeFile cfg $ writeConfig new_config
 
-        putStrLn " ________________________________________________________ "
-        putStrLn " -> Running"
+    putStrLn " ________________________________________________________ "
+    putStrLn " -> Running"
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-        getShellFolder >>= \shellfolder ->
-            let chromium = shellfolder </> "Chromium\\Application\\chrome.exe"
-            in createProcess (proc chromium []) >> return ()
+    getShellFolder >>= \shellfolder ->
+        let chromium = shellfolder </> "Chromium\\Application\\chrome.exe"
+        in createProcess (proc chromium []) >> return ()
 #endif
