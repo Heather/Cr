@@ -137,10 +137,6 @@ fireFox _ = do
                 when fileExist $ do
                     putStrLn " -> Clean Up"
                     removeFile fname
-    when exeExist $ do
-        printf " -> Running"
-            >> createProcess (proc ux [])
-            >> return ()
     exitWith ExitSuccess
 
 go :: String -> String -> Bool -> Bool -> IO()
