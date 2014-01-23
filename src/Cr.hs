@@ -73,12 +73,13 @@ options = [
     Option ['v'] ["version"] (NoArg showV) "Display Version",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
+    Option ['m'] ["mozilla"] (NoArg fireFox) "Install Firefox UX :)",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
   ]
-showV _    =    printf "Cr 0.2.9" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.3.0" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -114,6 +115,33 @@ cSwrap = bracket_
             putStrLn " ________________________________________________________ "
             putStrLn ""
     )
+    
+fireFox _ = do
+    let basedir = "D:\\Program Files\\UX" -- TODO --
+        ux      = basedir </> "firefox.exe"
+    exeExist <- doesFileExist ux
+    if exeExist
+        then 
+            let updater = basedir </> "updater.exe"
+            in createProcess (proc updater []) >> return ()
+        else cSwrap $ do
+            let ls = "29.0a1"
+                ils = read ls :: Int
+                fname = "firefox-" ++ ls ++ ".en-US.win32.installer.exe"
+            printf " -> Getting %s\n" ls
+                >> getUX fname
+            putStrLn " -> Installing"
+            pid <- runCommand fname
+            waitForProcess pid >>= \exitWith -> do
+                fileExist <- doesFileExist fname
+                when fileExist $ do
+                    putStrLn " -> Clean Up"
+                    removeFile fname
+    when exeExist $ do
+        printf " -> Running"
+            >> createProcess (proc ux [])
+            >> return ()
+    exitWith ExitSuccess
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do

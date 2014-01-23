@@ -1,6 +1,7 @@
 module CommonDataStorage
   ( getLastVersionForPlatform
   , getChromium
+  , getUX
   ) where
 
 import System.IO
@@ -41,6 +42,21 @@ getChromium p v fname = withSocketsDo $ do
               ++ fname
     irequest    <- liftIO $ parseUrl url
     fileExist   <- doesFileExist fname
+    when fileExist $ do
+        putStrLn " -> Removing old version"
+        removeFile fname
+    withManager $ \manager -> do
+        let request = irequest
+             { method = methodGet }
+        response <- http request manager
+        responseBody response C.$$+- sinkFile fname
+{----------------------------------------------------------------------------------------}
+getUX :: [Char] -> IO()
+getUX fname = withSocketsDo $ do
+    let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-ux/" 
+              ++ fname
+    irequest <- liftIO $ parseUrl url
+    fileExist <- doesFileExist fname
     when fileExist $ do
         putStrLn " -> Removing old version"
         removeFile fname
