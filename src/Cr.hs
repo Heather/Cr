@@ -125,7 +125,7 @@ fireFox _ = do
             let updater = basedir </> "updater.exe"
             in createProcess (proc updater []) >> return ()
         else cSwrap $ do
-            let ls = "29.0a1"
+            let ls = "30.0a1"
                 ils = read ls :: Int
                 fname = "firefox-" ++ ls ++ ".en-US.win32.installer.exe"
             printf " -> Getting %s\n" ls
