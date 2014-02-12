@@ -14,4 +14,8 @@ before_install:
  - export PATH=/opt/ghc/$GHCVER/bin:$PATH
 
 install: cabal-1.18 update
-script: make all_linux
+script:
+ - sed -i '/Win32/d' Cr.cabal
+ - cabal-1.18 install --only-dependencies
+ - cabal-1.18 configure
+ - cabal-1.18 build

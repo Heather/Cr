@@ -149,11 +149,11 @@ go bl pl force run = do
         cSwrap $ do
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
-                            r <- try (getLastVersionForPlatform pl)
+                            r <- try $ getLastVersionForPlatform pl
                                     :: IO (Either SomeException String)
                             case r of
                                 Left what -> do putStrLn $ show what
-                                                return   $ show (installed config)
+                                                return   $ show $ installed config
                                 Right val -> return val
                     else (return bl)
             let ils = read ls :: Int
