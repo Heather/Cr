@@ -79,7 +79,7 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
   ]
-showV _    =    printf "Cr 0.3.0" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.3.1" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -117,15 +117,14 @@ cSwrap = bracket_
     )
     
 fireFox _ = do
-    let basedir = "D:\\Program Files\\UX" -- TODO --
+    let basedir = "C:\\Program Files\\UX" -- TODO --
         ux      = basedir </> "firefox.exe"
-    exeExist <- doesFileExist ux
-    if exeExist
-        then 
-            let updater = basedir </> "updater.exe"
-            in createProcess (proc updater []) >> return ()
+    uxExists <- doesFileExist ux
+    if uxExists
+        then let updater = basedir </> "updater.exe"
+             in createProcess (proc updater []) >> return ()
         else cSwrap $ do
-            let ls = "30.0a1"
+            let ls = "31.0a1"
                 ils = read ls :: Int
                 fname = "firefox-" ++ ls ++ ".en-US.win32.installer.exe"
             printf " -> Getting %s\n" ls
