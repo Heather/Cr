@@ -53,7 +53,8 @@ getChromium p v fname = withSocketsDo $ do
 {----------------------------------------------------------------------------------------}
 getUX :: [Char] -> IO()
 getUX fname = withSocketsDo $ do
-    let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-ux/" 
+    -- UX :   "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-ux/"
+    let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/"
               ++ fname
     irequest <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname

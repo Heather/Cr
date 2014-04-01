@@ -73,7 +73,7 @@ options = [
     Option ['v'] ["version"] (NoArg showV) "Display Version",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
-    Option ['m'] ["mozilla"] (NoArg fireFox) "Install Firefox UX :)",
+    Option ['m'] ["mozilla"] (NoArg fireFox) "Install Nightly Firefox",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
@@ -117,7 +117,7 @@ cSwrap = bracket_
     )
     
 fireFox _ = do
-    let basedir = "C:\\Program Files\\UX" -- TODO --
+    let basedir = "C:\\Program Files\\Nightly" -- TODO --
         ux      = basedir </> "firefox.exe"
     uxExists <- doesFileExist ux
     if uxExists
