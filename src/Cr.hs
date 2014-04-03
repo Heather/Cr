@@ -146,7 +146,8 @@ go bl pl force run = do
         config  <- doesFileExist ymlx >>= \isCfgEx ->
                     if isCfgEx then yDecode ymlx :: IO Config
                                else return Config{installed=0, mozilla=False}
-        cSwrap $ do
+        if (mozilla config) then fireFox ()
+         else cSwrap $ do
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
                             r <- try $ getLastVersionForPlatform pl
