@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP, MultiWayIf #-}
 
+import Yaml
 import CommonDataStorage
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
@@ -16,13 +17,13 @@ import System.Process
 import System.Exit
 import System.Console.GetOpt
 import System.IO
+import System.FilePath(takeDirectory, (</>))
+import System.Environment.Executable ( getExecutablePath )
 
 import Control.Concurrent
 import Control.Monad
 import Control.Applicative
 import Control.Exception
-
-import System.FilePath((</>))
 
 main = do user <- getAppUserDataDirectory "Cr.lock"
           locked <- doesFileExist user
@@ -92,13 +93,6 @@ getb arg opt        = return opt { optBuild = go arg }
 forceReinstall opt  = return opt { optForce = True }
 justRun opt         = return opt { optRun = True }
 
-data Config = Config { installed  :: Int
-    } deriving (Read, Show)
-readConfig :: String -> Config
-readConfig = read
-writeConfig :: Config -> String
-writeConfig = show
-
 cSwrap = bracket_
      ( do
             putStrLn " ________________________________________________________ "
@@ -138,13 +132,20 @@ fireFox _ = do
                     removeFile fname
     exitWith ExitSuccess
 
+getConfig :: IO String
+getConfig =
+    if | os `elem` ["win32", "mingw32", "cygwin32"] -> (</> "Cr.yml") 
+                                                        <$> takeDirectory 
+                                                        <$> getExecutablePath
+       | otherwise -> return "/etc/Cr.yml"
+
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
     when (not run) $ do
-        let cfg = "Cr.cfg"
-        config <- doesFileExist cfg >>= \isCfgEx ->
-                    if isCfgEx then readFile cfg >>= return . readConfig
-                               else return Config{installed=0}
+        ymlx    <- getConfig
+        config  <- doesFileExist ymlx >>= \isCfgEx ->
+                    if isCfgEx then yDecode ymlx :: IO Config
+                               else return Config{installed=0, mozilla=False}
         cSwrap $ do
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
@@ -170,7 +171,7 @@ go bl pl force run = do
                             when fileExist $ do
                                 putStrLn " -> Clean Up"
                                 removeFile fname
-                            writeFile cfg $ writeConfig new_config
+                            yEncode ymlx new_config
 
     putStrLn " ________________________________________________________ "
     putStrLn " -> Running"

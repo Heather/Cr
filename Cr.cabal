@@ -21,4 +21,6 @@ Executable    Cr
     , transformers
     , directory
     , filepath
+    , executable-path
+    , yaml
     , Win32
