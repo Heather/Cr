@@ -142,8 +142,7 @@ openConfig ymlx =
                    else return Config{installed=0, mozilla=False, version="31.0a1"}
        
 fireFoxR _ = do
-    ymlx    <- getConfig
-    config  <- openConfig ymlx
+    config  <- openConfig =<< getConfig
     fireFox (version config)
 
 go :: String -> String -> Bool -> Bool -> IO()
