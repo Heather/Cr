@@ -1,7 +1,7 @@
 module CommonDataStorage
   ( getLastVersionForPlatform
   , getChromium
-  , getUX
+  , getFF
   ) where
 
 import System.IO
@@ -51,9 +51,8 @@ getChromium p v fname = withSocketsDo $ do
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
 {----------------------------------------------------------------------------------------}
-getUX :: [Char] -> IO()
-getUX fname = withSocketsDo $ do
-    -- UX :   "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-ux/"
+getFF :: [Char] -> IO()
+getFF fname = withSocketsDo $ do
     let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/"
               ++ fname
     irequest <- liftIO $ parseUrl url

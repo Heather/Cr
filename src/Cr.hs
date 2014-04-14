@@ -74,7 +74,7 @@ options = [
     Option ['v'] ["version"] (NoArg showV) "Display Version",
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
-    Option ['m'] ["mozilla"] (NoArg fireFox) "Install Nightly Firefox",
+    Option ['m'] ["mozilla"] (NoArg fireFoxR) "Install Nightly Firefox",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
@@ -109,20 +109,17 @@ cSwrap = bracket_
             putStrLn " ________________________________________________________ "
             putStrLn ""
     )
-    
-fireFox _ = do
+
+fireFox version = do
     let basedir = "C:\\Program Files\\Nightly" -- TODO --
         ux      = basedir </> "firefox.exe"
     uxExists <- doesFileExist ux
-    if uxExists
-        then let updater = basedir </> "updater.exe"
-             in createProcess (proc updater []) >> return ()
-        else cSwrap $ do
-            let ls = "31.0a1"
-                ils = read ls :: Int
-                fname = "firefox-" ++ ls ++ ".en-US.win32.installer.exe"
-            printf " -> Getting %s\n" ls
-                >> getUX fname
+    if | uxExists -> let updater = basedir </> "updater.exe"
+                     in createProcess (proc updater []) >> return ()
+       | otherwise -> cSwrap $ do
+            let fname = "firefox-" ++ version ++ ".en-US.win32.installer.exe"
+            printf " -> Getting %s\n" version
+                >> getFF fname
             putStrLn " -> Installing"
             pid <- runCommand fname
             waitForProcess pid >>= \exitWith -> do
@@ -138,6 +135,13 @@ getConfig =
                                                         <$> takeDirectory 
                                                         <$> getExecutablePath
        | otherwise -> return "/etc/Cr.yml"
+       
+fireFoxR _ = do
+    ymlx    <- getConfig
+    config  <- doesFileExist ymlx >>= \isCfgEx ->
+                if isCfgEx then yDecode ymlx :: IO Config
+                           else return Config{installed=0, mozilla=False, version="31.0a1"}
+    fireFox (version config)
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
@@ -145,9 +149,9 @@ go bl pl force run = do
         ymlx    <- getConfig
         config  <- doesFileExist ymlx >>= \isCfgEx ->
                     if isCfgEx then yDecode ymlx :: IO Config
-                               else return Config{installed=0, mozilla=False}
-        if (mozilla config) then fireFox ()
-         else cSwrap $ do
+                               else return Config{installed=0, mozilla=False, version="31.0a1"}
+        if | mozilla config -> fireFox (version config)
+           | otherwise -> cSwrap $ do
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
                             r <- try $ getLastVersionForPlatform pl
