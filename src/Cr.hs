@@ -136,20 +136,21 @@ getConfig =
                                                         <$> getExecutablePath
        | otherwise -> return "/etc/Cr.yml"
        
+openConfig ymlx =
+    doesFileExist ymlx >>= \isCfgEx ->
+        if isCfgEx then yDecode ymlx :: IO Config
+                   else return Config{installed=0, mozilla=False, version="31.0a1"}
+       
 fireFoxR _ = do
     ymlx    <- getConfig
-    config  <- doesFileExist ymlx >>= \isCfgEx ->
-                if isCfgEx then yDecode ymlx :: IO Config
-                           else return Config{installed=0, mozilla=False, version="31.0a1"}
+    config  <- openConfig ymlx
     fireFox (version config)
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
     when (not run) $ do
         ymlx    <- getConfig
-        config  <- doesFileExist ymlx >>= \isCfgEx ->
-                    if isCfgEx then yDecode ymlx :: IO Config
-                               else return Config{installed=0, mozilla=False, version="31.0a1"}
+        config  <- openConfig ymlx
         if | mozilla config -> fireFox (version config)
            | otherwise -> cSwrap $ do
             ls <- if bl == "last"
