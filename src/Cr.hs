@@ -110,15 +110,16 @@ cSwrap = bracket_
             putStrLn ""
     )
 
-fireFox version = do
-    let basedir = "C:\\Program Files\\Nightly" -- TODO --
-        ux      = basedir </> "firefox.exe"
+fireFox config = do
+    let base = basedir config
+        ux   = base </> "firefox.exe"
+        ver  = version config
     uxExists <- doesFileExist ux
-    if | uxExists -> let updater = basedir </> "updater.exe"
+    if | uxExists -> let updater = base </> "updater.exe"
                      in createProcess (proc updater []) >> return ()
        | otherwise -> cSwrap $ do
-            let fname = "firefox-" ++ version ++ ".en-US.win32.installer.exe"
-            printf " -> Getting %s\n" version
+            let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
+            printf " -> Getting %s\n" ver
                 >> getFF fname
             putStrLn " -> Installing"
             pid <- runCommand fname
@@ -135,22 +136,27 @@ getConfig =
                                                         <$> takeDirectory 
                                                         <$> getExecutablePath
        | otherwise -> return "/etc/Cr.yml"
-       
+      
+openConfig :: String -> IO Config
 openConfig ymlx =
     doesFileExist ymlx >>= \isCfgEx ->
         if isCfgEx then yDecode ymlx :: IO Config
-                   else return Config{installed=0, mozilla=False, version="31.0a1"}
+                   else return Config{ installed=0
+                                     , mozilla=False
+                                     , version="31.0a1"
+                                     , basedir="C:\\Program Files\\Nightly"
+                                }
        
 fireFoxR _ = do
-    config  <- openConfig =<< getConfig
-    fireFox (version config)
+    config <- openConfig =<< getConfig
+    fireFox config
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
     when (not run) $ do
         ymlx    <- getConfig
         config  <- openConfig ymlx
-        if | mozilla config -> fireFox (version config)
+        if | mozilla config -> fireFox config
            | otherwise -> cSwrap $ do
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
