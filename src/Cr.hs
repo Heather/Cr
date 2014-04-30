@@ -57,17 +57,14 @@ defaultOptions = Options {
   }
 
 do_program :: ThreadId -> Handle -> IO ()
-do_program t h = let s = "Locked by thread: " ++ show t
-                 in do  putStrLn s
-                        hPutStr h s
-                        args <- getArgs
-                        let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
-                        opts <- foldl (>>=) (return defaultOptions) actions
-                        let Options { optPlatform   = platform,
-                                      optBuild      = build,
-                                      optForce      = force,
-                                      optRun        = run } = opts
-                        build platform force run
+do_program t h = do args <- getArgs
+                    let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
+                    opts <- foldl (>>=) (return defaultOptions) actions
+                    let Options { optPlatform   = platform,
+                                  optBuild      = build,
+                                  optForce      = force,
+                                  optRun        = run } = opts
+                    build platform force run
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
