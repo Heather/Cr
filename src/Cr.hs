@@ -167,8 +167,8 @@ go bl pl force run = do
             let ils = read ls :: Int
             if (installed config) >= ils && not force
                 then putStrLn " -> Installed version is newer or the same"
-                else do let new_config = config{installed=ils}
-                        let fname = "mini_installer.exe"
+                else do let new_config  = config{installed=ils}
+                            fname       = "mini_installer.exe"
                         printf " -> Downloading %s\n" ls
                             >> getChromium pl ls fname
 
