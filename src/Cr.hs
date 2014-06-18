@@ -133,17 +133,17 @@ getConfig =
                                                         <$> takeDirectory 
                                                         <$> getExecutablePath
        | otherwise -> return "/etc/Cr.yml"
-      
+
 openConfig :: String -> IO Config
 openConfig ymlx =
     doesFileExist ymlx >>= \isCfgEx ->
         if isCfgEx then yDecode ymlx :: IO Config
                    else return Config{ installed=0
                                      , mozilla=False
-                                     , version="31.0a1"
+                                     , version="33.0a1"
                                      , basedir="C:\\Program Files\\Nightly"
                                 }
-       
+
 fireFoxR _ = do
     config <- openConfig =<< getConfig
     fireFox config
