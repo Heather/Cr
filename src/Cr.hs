@@ -77,7 +77,7 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
   ]
-showV _    =    printf "Cr 0.4.0" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.4.2" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -138,7 +138,7 @@ openConfig :: String -> IO Config
 openConfig ymlx =
     doesFileExist ymlx >>= \isCfgEx ->
         if isCfgEx then yDecode ymlx :: IO Config
-                   else return Config{ installed=0
+                   else return Config{ installed="0"
                                      , mozilla=False
                                      , version="33.0a1"
                                      , basedir="C:\\Program Files\\Nightly"
@@ -161,13 +161,12 @@ go bl pl force run = do
                                     :: IO (Either SomeException String)
                             case r of
                                 Left what -> do putStrLn $ show what
-                                                return   $ show $ installed config
+                                                return   $ installed config
                                 Right val -> return val
                     else (return bl)
-            let ils = read ls :: Int
-            if (installed config) >= ils && not force
+            if (installed config) >= ls && not force
                 then putStrLn " -> Installed version is newer or the same"
-                else do let new_config  = config{installed=ils}
+                else do let new_config  = config{installed=ls}
                             fname       = "mini_installer.exe"
                         printf " -> Downloading %s\n" ls
                             >> getChromium pl ls fname

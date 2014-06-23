@@ -15,7 +15,7 @@ import Control.Applicative
 
 import qualified Data.ByteString.Char8 as BS
 
-data Config = Config {installed :: Int,
+data Config = Config {installed :: String,
                       mozilla :: Bool,
                       version :: String,
                       basedir :: String}
