@@ -164,8 +164,8 @@ go bl pl force run = do
                                                 return   $ installed config
                                 Right val -> return val
                     else (return bl)
-            if (installed config) >= ls && not force
-                then putStrLn " -> Installed version is newer or the same"
+            if (installed config) == ls && not force
+                then putStrLn " -> This version is installed"
                 else do let new_config  = config{installed=ls}
                             fname       = "mini_installer.exe"
                         printf " -> Downloading %s\n" ls
