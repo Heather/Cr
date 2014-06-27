@@ -25,18 +25,30 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-main = do user <- getAppUserDataDirectory "Cr.lock"
+main :: IO ()
+main = do args <- getArgs
+          let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
+          opts <- foldl (>>=) (return defaultOptions) actions
+          let Options { optPlatform   = platform,
+                        optBuild      = build,
+                        optForce      = force,
+                        optRun        = run } = opts
+          user <- getAppUserDataDirectory "Cr.lock"
           locked <- doesFileExist user
-          let run = myThreadId >>= \t -> withFile user WriteMode (do_program t)
+          let gogo = build platform force run
+              start = myThreadId >>= \t -> withFile user WriteMode (do_program gogo t)
                                            `finally` removeFile user
           if locked then do
                         putStrLn "There is already one instance of this program running."
                         putStrLn "Remove lock and start application? (Y/N)"
                         hFlush stdout
                         str <- getLine
-                        if | str `elem` ["Y", "y"] -> run
+                        if | str `elem` ["Y", "y"] -> start
                            | otherwise             -> return ()
-                      else run
+                      else start
+
+do_program :: IO () -> ThreadId -> Handle -> IO ()
+do_program gogo _ _ = gogo
 
 data Options = Options  {
     optPlatform  :: String,
@@ -56,16 +68,6 @@ defaultOptions = Options {
     optBuild = go "last"
   }
 
-do_program :: ThreadId -> Handle -> IO ()
-do_program t h = do args <- getArgs
-                    let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
-                    opts <- foldl (>>=) (return defaultOptions) actions
-                    let Options { optPlatform   = platform,
-                                  optBuild      = build,
-                                  optForce      = force,
-                                  optRun        = run } = opts
-                    build platform force run
-
 options :: [OptDescr (Options -> IO Options)]
 options = [
     Option ['v'] ["version"] (NoArg showV) "Display Version",
@@ -77,13 +79,13 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
   ]
-showV _    =    printf "Cr 0.4.2" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.4.3" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
 showChromeVersion _ = do
     ls <- getLastVersionForPlatform "Win"
-    printf "last: %s\n" ls  >> exitWith ExitSuccess
+    printf "last: %s\n" ls >> exitWith ExitSuccess
 
 getp arg opt        = return opt { optPlatform = arg }
 getb arg opt        = return opt { optBuild = go arg }
@@ -112,8 +114,7 @@ fireFox config = do
         ux   = base </> "firefox.exe"
         ver  = version config
     uxExists <- doesFileExist ux
-    if | uxExists -> let updater = base </> "updater.exe"
-                     in createProcess (proc updater []) >> return ()
+    if | uxExists -> createProcess (proc (base </> "updater.exe") []) >> return ()
        | otherwise -> cSwrap $ do
             let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
             printf " -> Getting %s\n" ver
@@ -144,15 +145,13 @@ openConfig ymlx =
                                      , basedir="C:\\Program Files\\Nightly"
                                 }
 
-fireFoxR _ = do
-    config <- openConfig =<< getConfig
-    fireFox config
+fireFoxR _ = fireFox =<< openConfig =<< getConfig
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
     when (not run) $ do
-        ymlx    <- getConfig
-        config  <- openConfig ymlx
+        ymlx   <- getConfig
+        config <- openConfig ymlx
         if | mozilla config -> fireFox config
            | otherwise -> cSwrap $ do
             ls <- if bl == "last"
