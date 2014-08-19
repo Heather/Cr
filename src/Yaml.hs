@@ -9,17 +9,16 @@ module Yaml
   ) where
 
 import Data.Yaml
-import Data.Maybe (fromJust)
 
 import Control.Applicative
 
 import qualified Data.ByteString.Char8 as BS
 
-data Config = Config {installed :: String,
-                      mozilla :: Bool,
-                      version :: String,
-                      basedir :: String}
-                     deriving (Show)
+data Config = Config { installed :: String
+                     , mozilla   :: Bool
+                     , version :: String
+                     , basedir :: String
+                     } deriving (Show)
 
 instance FromJSON Config where
     parseJSON (Object v) = Config <$>
@@ -39,9 +38,9 @@ instance ToJSON Config where
 yDecode :: FromJSON iFromJSONable => FilePath -> IO iFromJSONable
 yDecode fnm = do
     ymlData <- BS.readFile fnm
-    return $ fromJust $ Data.Yaml.decode ymlData
+    return $ case Data.Yaml.decode ymlData of
+                Just decoded -> decoded
+                Nothing      -> error "Can't parse from YAML"
 
 yEncode :: ToJSON iToJSONable => FilePath -> iToJSONable -> IO()
-yEncode fnm dat = do
-  let bs = Data.Yaml.encode dat
-  BS.writeFile fnm bs
+yEncode fnm dat = BS.writeFile fnm $ Data.Yaml.encode dat

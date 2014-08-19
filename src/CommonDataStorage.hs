@@ -55,7 +55,7 @@ getFF :: [Char] -> IO()
 getFF fname = withSocketsDo $ do
     let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/"
               ++ fname
-    irequest <- liftIO $ parseUrl url
+    irequest  <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
     when fileExist $ do
         putStrLn " -> Removing old version"

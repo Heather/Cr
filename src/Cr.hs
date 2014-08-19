@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiWayIf #-}
+{-# LANGUAGE CPP, MultiWayIf, LambdaCase #-}
 
 import Yaml
 import CommonDataStorage
@@ -28,13 +28,13 @@ import Control.Exception
 main :: IO ()
 main = do args <- getArgs
           let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
-          opts <- foldl (>>=) (return defaultOptions) actions
-          let Options { optPlatform   = platform,
-                        optBuild      = build,
-                        optForce      = force,
-                        optRun        = run } = opts
-          user <- getAppUserDataDirectory "Cr.lock"
-          locked <- doesFileExist user
+          Options { optPlatform   = platform
+                  , optBuild      = build
+                  , optForce      = force
+                  , optRun        = run 
+                  } <- foldl (>>=) (return defaultOptions) actions
+          user      <- getAppUserDataDirectory "Cr.lock"
+          locked    <- doesFileExist user
           let gogo = build platform force run
               start = myThreadId >>= \t -> withFile user WriteMode (do_program gogo t)
                                            `finally` removeFile user
@@ -50,23 +50,19 @@ main = do args <- getArgs
 do_program :: IO () -> ThreadId -> Handle -> IO ()
 do_program gogo _ _ = gogo
 
-data Options = Options  {
-    optPlatform  :: String,
-    optForce :: Bool,
-    optRun :: Bool,
-    optBuild :: String ->  Bool -> Bool -> IO()
-  }
+data Options = Options
+    { optPlatform  :: String,   optForce :: Bool
+    , optRun :: Bool,           optBuild :: String ->  Bool -> Bool -> IO()
+    }
 
 defaultOptions :: Options
 defaultOptions = Options {
     optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] -> "Win"
                      | os `elem` ["darwin"] -> "Mac"
                      | otherwise -> "Linux"
-        ,
-    optForce = False,
-    optRun   = False,
-    optBuild = go "last"
-  }
+    , optForce = False, optRun   = False
+    , optBuild = go "last"
+    }
 
 options :: [OptDescr (Options -> IO Options)]
 options = [
@@ -78,7 +74,7 @@ options = [
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
-  ]
+    ]
 showV _    =    printf "Cr 0.4.3" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
@@ -114,7 +110,7 @@ fireFox config = do
         ux   = base </> "firefox.exe"
         ver  = version config
     uxExists <- doesFileExist ux
-    if | uxExists -> createProcess (proc (base </> "updater.exe") []) >> return ()
+    if | uxExists  -> createProcess (proc (base </> "updater.exe") []) >> return ()
        | otherwise -> cSwrap $ do
             let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
             printf " -> Getting %s\n" ver
@@ -156,12 +152,11 @@ go bl pl force run = do
            | otherwise -> cSwrap $ do
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
-                            r <- try $ getLastVersionForPlatform pl
-                                    :: IO (Either SomeException String)
-                            case r of
-                                Left what -> do putStrLn $ show what
-                                                return   $ installed config
-                                Right val -> return val
+                            try $ getLastVersionForPlatform pl
+                                :: IO (Either SomeException String)
+                            >>= \case Left what -> do putStrLn $ show what
+                                                      return   $ installed config
+                                      Right val -> return val
                     else (return bl)
             if (installed config) == ls && not force
                 then putStrLn " -> This version is installed"
