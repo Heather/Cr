@@ -25,23 +25,22 @@ import qualified Codec.Binary.UTF8.String as S
 
 import Control.Monad
 import Control.Monad.IO.Class (liftIO)
-{------------------------- Last Chromium Version --------------------------------------}
+
 getLastVersionForPlatform :: [Char] -> IO String
-getLastVersionForPlatform p = withSocketsDo
-    $   let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-                  ++ p 
+getLastVersionForPlatform platform = withSocketsDo
+    $ let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
+                  ++ platform
                   ++ "/LAST_CHANGE"
-        in simpleHttp url
-            >>= \bs -> return $ S.decode $ L.unpack bs
-{-------------------------  Chromium  --------------------------------------}
+      in simpleHttp url >>= \bs -> return ( S.decode $ L.unpack bs )
+
 getChromium :: [Char] -> [Char] -> [Char] -> IO()
-getChromium p v fname = withSocketsDo $ do
+getChromium platform version fname = withSocketsDo $ do
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-              ++ p ++ "/" 
-              ++ v ++ "/" 
+              ++ platform ++ "/" 
+              ++ version ++ "/" 
               ++ fname
-    irequest    <- liftIO $ parseUrl url
-    fileExist   <- doesFileExist fname
+    irequest  <- liftIO $ parseUrl url
+    fileExist <- doesFileExist fname
     when fileExist $ do
         putStrLn " -> Removing old version"
         removeFile fname
@@ -50,7 +49,7 @@ getChromium p v fname = withSocketsDo $ do
              { method = methodGet }
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
-{----------------------------------------------------------------------------------------}
+
 getFF :: [Char] -> IO()
 getFF fname = withSocketsDo $ do
     let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/"
@@ -65,4 +64,3 @@ getFF fname = withSocketsDo $ do
              { method = methodGet }
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
-{----------------------------------------------------------------------------------------}

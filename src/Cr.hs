@@ -28,10 +28,8 @@ import Control.Exception
 main :: IO ()
 main = do args <- getArgs
           let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
-          Options { optPlatform   = platform
-                  , optBuild      = build
-                  , optForce      = force
-                  , optRun        = run 
+          Options { optPlatform   = platform,   optBuild      = build
+                  , optForce      = force,      optRun        = run 
                   } <- foldl (>>=) (return defaultOptions) actions
           user      <- getAppUserDataDirectory "Cr.lock"
           locked    <- doesFileExist user
@@ -45,7 +43,7 @@ main = do args <- getArgs
                         str <- getLine
                         if | str `elem` ["Y", "y"] -> start
                            | otherwise             -> return ()
-                      else start
+                    else start
 
 do_program :: IO () -> ThreadId -> Handle -> IO ()
 do_program gogo _ _ = gogo
@@ -75,7 +73,7 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
-showV _    =    printf "Cr 0.4.3" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.4.4" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -117,11 +115,12 @@ fireFox config = do
                 >> getFF fname
             putStrLn " -> Installing"
             pid <- runCommand fname
-            waitForProcess pid >>= \exitWith -> do
+            waitForProcess pid >>= \exit -> do
                 fileExist <- doesFileExist fname
                 when fileExist $ do
                     putStrLn " -> Clean Up"
                     removeFile fname
+                exitWith exit
     exitWith ExitSuccess
 
 getConfig :: IO String
@@ -135,10 +134,10 @@ openConfig :: String -> IO Config
 openConfig ymlx =
     doesFileExist ymlx >>= \isCfgEx ->
         if isCfgEx then yDecode ymlx :: IO Config
-                   else return Config{ installed="0"
-                                     , mozilla=False
-                                     , version="33.0a1"
-                                     , basedir="C:\\Program Files\\Nightly"
+                   else return Config { installed="0"
+                                      , mozilla=False
+                                      , version="33.0a1"
+                                      , basedir="C:\\Program Files\\Nightly"
                                 }
 
 fireFoxR _ = fireFox =<< openConfig =<< getConfig
@@ -150,24 +149,25 @@ go bl pl force run = do
         config <- openConfig ymlx
         if | mozilla config -> fireFox config
            | otherwise -> cSwrap $ do
+            let installedNow = installed config
             ls <- if bl == "last"
                     then do putStrLn " -> Checking for the last version"
                             try $ getLastVersionForPlatform pl
                                 :: IO (Either SomeException String)
                             >>= \case Left what -> do putStrLn $ show what
-                                                      return   $ installed config
+                                                      return installedNow
                                       Right val -> return val
-                    else (return bl)
-            if (installed config) == ls && not force
+                    else return bl
+            if installedNow == ls && not force
                 then putStrLn " -> This version is installed"
-                else do let new_config  = config{installed=ls}
+                else do let new_config  = config { installed = ls }
                             fname       = "mini_installer.exe"
                         printf " -> Downloading %s\n" ls
                             >> getChromium pl ls fname
 
                         putStrLn " -> Installing"
                         pid <- runCommand fname
-                        waitForProcess pid >>= \exitWith -> do
+                        waitForProcess pid >>= \_ -> do
                             fileExist <- doesFileExist fname
                             when fileExist $ do
                                 putStrLn " -> Clean Up"
@@ -179,6 +179,6 @@ go bl pl force run = do
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
     getShellFolder >>= \shellfolder ->
-        let chromium = shellfolder </> "Chromium\\Application\\chrome.exe"
-        in createProcess (proc chromium []) >> return ()
+        let pchromium = shellfolder </> "Chromium\\Application\\chrome.exe"
+        in createProcess (proc pchromium []) >> return ()
 #endif

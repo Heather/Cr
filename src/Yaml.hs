@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Yaml
-  ( Config(..),
-    FromJSON,
-    ToJSON,
-    yDecode,
-    yEncode
+  ( Config(..)
+  , FromJSON
+  , ToJSON
+  , yDecode
+  , yEncode
   ) where
 
 import Data.Yaml
@@ -33,7 +33,8 @@ instance ToJSON Config where
    toJSON (Config inst moz ver base) = object [ "installed"  .= inst
                                               , "mozilla"    .= moz
                                               , "version"    .= ver
-                                              , "basedir"    .= base]
+                                              , "basedir"    .= base
+                                              ]
 
 yDecode :: FromJSON iFromJSONable => FilePath -> IO iFromJSONable
 yDecode fnm = do
