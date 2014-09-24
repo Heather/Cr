@@ -36,13 +36,12 @@ main = do args <- getArgs
           let gogo = build platform force run
               start = myThreadId >>= \t -> withFile user WriteMode (do_program gogo t)
                                            `finally` removeFile user
-          if locked then do
-                        putStrLn "There is already one instance of this program running."
-                        putStrLn "Remove lock and start application? (Y/N)"
-                        hFlush stdout
-                        str <- getLine
-                        if | str `elem` ["Y", "y"] -> start
-                           | otherwise             -> return ()
+          if locked then do putStrLn "There is already one instance of this program running."
+                            putStrLn "Remove lock and start application? (Y/N)"
+                            hFlush stdout
+                            getLine >>= \case w | w `elem` ["Y", "y"] -> start
+                                              w | w `elem` ["N", "n"] -> return ()
+                                              _ -> return ()
                     else start
 
 do_program :: IO () -> ThreadId -> Handle -> IO ()
@@ -73,13 +72,13 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
-showV _    =    printf "Cr 0.4.4" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.4.5" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
-showChromeVersion _ = do
-    ls <- getLastVersionForPlatform "Win"
-    printf "last: %s\n" ls >> exitWith ExitSuccess
+showChromeVersion _ = do getLastVersionForPlatform "Win"
+                            >>= printf "last: %s\n"
+                         exitWith ExitSuccess
 
 getp arg opt        = return opt { optPlatform = arg }
 getb arg opt        = return opt { optBuild = go arg }
@@ -169,9 +168,9 @@ go bl pl force run = do
                         pid <- runCommand fname
                         waitForProcess pid >>= \_ -> do
                             fileExist <- doesFileExist fname
-                            when fileExist $ do
-                                putStrLn " -> Clean Up"
-                                removeFile fname
+                            when fileExist $ 
+                                printf " -> Clean Up" 
+                                    >> removeFile fname
                             yEncode ymlx new_config
 
     putStrLn " ________________________________________________________ "
