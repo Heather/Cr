@@ -144,7 +144,7 @@ fireFoxR _ = fireFox =<< openConfig =<< getConfig
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-    pidk <- runCommand "taskkill /im chromium.exe /f"
+    pidk <- runCommand "taskkill /im chrome.exe /f"
     waitForProcess pidk >> return ()
 #endif
     when (not run) $ do
