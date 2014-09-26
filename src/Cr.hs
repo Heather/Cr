@@ -10,7 +10,7 @@ import Win
 import Text.Printf
 import Text.Show
 
-import System.Environment( getArgs )
+import System.Environment( getArgs, getEnv )
 import System.Info (os)
 import System.Directory
 import System.Process
@@ -72,7 +72,7 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
-showV _    =    printf "Cr 0.4.5" >> exitWith ExitSuccess
+showV _    =    printf "Cr 0.4.6" >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -143,6 +143,10 @@ fireFoxR _ = fireFox =<< openConfig =<< getConfig
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+    pidk <- runCommand "taskkill /im chromium.exe /f"
+    waitForProcess pidk >> return ()
+#endif
     when (not run) $ do
         ymlx   <- getConfig
         config <- openConfig ymlx
@@ -167,10 +171,14 @@ go bl pl force run = do
                         putStrLn " -> Installing"
                         pid <- runCommand fname
                         waitForProcess pid >>= \_ -> do
-                            fileExist <- doesFileExist fname
-                            when fileExist $ 
-                                printf " -> Clean Up" 
-                                    >> removeFile fname
+                            putStrLn " -> Clean Up"
+                            installFileExist <- doesFileExist fname
+                            userProfilePath  <- getEnv "UserProfile"
+                            let desctopLink = userProfilePath </> "Desktop" </> "chromium.lnk"
+                            desktopFileExist <- doesFileExist desctopLink
+                            when installFileExist $ removeFile fname
+                            when desktopFileExist $ removeFile desctopLink
+                            putStrLn " -> Update installed version"
                             yEncode ymlx new_config
 
     putStrLn " ________________________________________________________ "
