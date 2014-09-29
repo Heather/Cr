@@ -1,6 +1,7 @@
 module CommonDataStorage
   ( getLastVersionForPlatform
   , getChromium
+  , getDartium
   , getFF
   ) where
 
@@ -38,6 +39,21 @@ getChromium platform version fname = withSocketsDo $ do
     let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
               ++ platform ++ "/" 
               ++ version ++ "/" 
+              ++ fname
+    irequest  <- liftIO $ parseUrl url
+    fileExist <- doesFileExist fname
+    when fileExist $ do
+        putStrLn " -> Removing old version"
+        removeFile fname
+    withManager $ \manager -> do
+        let request = irequest
+             { method = methodGet }
+        response <- http request manager
+        responseBody response C.$$+- sinkFile fname
+
+getDartium :: [Char] -> IO()
+getDartium fname = withSocketsDo $ do
+    let url = "http://storage.googleapis.com/dart-archive/channels/dev/release/latest/dartium/"
               ++ fname
     irequest  <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname

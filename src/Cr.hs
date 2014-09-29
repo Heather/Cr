@@ -26,7 +26,7 @@ import Control.Applicative
 import Control.Exception
 
 myVersion :: String
-myVersion = "Cr 0.4.7"
+myVersion = "Cr 0.4.8"
 
 main :: IO ()
 main = do args <- getArgs
@@ -70,6 +70,7 @@ options = [
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['m'] ["mozilla"] (NoArg fireFoxR) "Install Nightly Firefox",
+    Option ['d'] ["dartium"] (NoArg dartIumR) "Install Dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
@@ -108,7 +109,7 @@ fireFox config = do
         ux   = base </> "firefox.exe"
         ver  = version config
     uxExists <- doesFileExist ux
-    if | uxExists  -> createProcess (proc (base </> "updater.exe") []) >> return ()
+    if | uxExists  -> createProcess (proc ux []) >> return ()
        | otherwise -> cSwrap $ do
             let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
@@ -129,6 +130,31 @@ fireFox config = do
                     removeFile fname
                 exitWith exit
     exitWith ExitSuccess
+    
+dartIum config = do
+    let base = basedir config
+        chro = base </> "chrome.exe"
+    chExists <- doesFileExist chro
+    if | chExists  -> createProcess (proc chro []) >> return () -- TODO
+       | otherwise -> cSwrap $ do
+            let fname = "dartium-windows-ia32-release.zip"
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+            putStrLn " -> Warning: Dartium will be killed soon"
+#endif
+            printf " -> Downloading"
+                >> getDartium fname
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+            pidk <- runCommand "taskkill /im chrome.exe /f"
+            waitForProcess pidk >> return ()
+#endif
+            putStrLn " -> Unpack dartium-windows-ia32-release.zip"
+            putStrLn " -> Press any key"
+            getChar >> return ()
+            fileExist <- doesFileExist fname
+            when fileExist $ do
+                putStrLn " -> Clean Up"
+                removeFile fname
+    exitWith ExitSuccess
 
 getConfig :: IO String
 getConfig =
@@ -143,11 +169,13 @@ openConfig ymlx =
         if isCfgEx then yDecode ymlx :: IO Config
                    else return Config { installed="0"
                                       , mozilla=False
+                                      , dartium=False
                                       , version="33.0a1"
                                       , basedir="C:\\Program Files\\Nightly"
                                 }
 
 fireFoxR _ = fireFox =<< openConfig =<< getConfig
+dartIumR _ = dartIum =<< openConfig =<< getConfig
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
@@ -156,6 +184,7 @@ go bl pl force run = do
         config <- openConfig ymlx
         putStrLn myVersion
         if | mozilla config -> fireFox config
+           | dartium config -> dartIum config
            | otherwise -> cSwrap $ do
             let installedNow = installed config
             ls <- if bl == "last"
@@ -187,10 +216,15 @@ go bl pl force run = do
                             putStrLn " -> Clean Up"
                             installFileExist <- doesFileExist fname
                             userProfilePath  <- getEnv "UserProfile"
-                            let desctopLink = userProfilePath </> "Desktop" </> "chromium.lnk"
+                            let desctopLink = userProfilePath </> "Desktop" </> "Chromium.lnk"
+                                taskBarLink = userProfilePath </> "AppData"
+                                                              </> "Roaming" </> "Microsoft" </> "Internet Explorer"
+                                                              </> "Quick Launch" </> "User Pinned" </> "TaskBar" </> "Chromium.lnk"
                             desktopFileExist <- doesFileExist desctopLink
+                            taskBarFileExist <- doesFileExist taskBarLink
                             when installFileExist $ removeFile fname
                             when desktopFileExist $ removeFile desctopLink
+                            when taskBarFileExist $ removeFile taskBarLink
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
 

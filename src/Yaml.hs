@@ -16,25 +16,29 @@ import qualified Data.ByteString.Char8 as BS
 
 data Config = Config { installed :: String
                      , mozilla   :: Bool
-                     , version :: String
-                     , basedir :: String
+                     , dartium   :: Bool
+                     , version   :: String
+                     , basedir   :: String
                      } deriving (Show)
 
 instance FromJSON Config where
     parseJSON (Object v) = Config <$>
                            v .: "installed" <*>
                            v .: "mozilla" <*>
+                           v .: "dartium" <*>
                            v .: "version" <*>
                            v .: "basedir"
     -- A non-Object value is of the wrong type, so fail.
     parseJSON _ = error "Can't parse Config from YAML/JSON"
 
 instance ToJSON Config where
-   toJSON (Config inst moz ver base) = object [ "installed"  .= inst
-                                              , "mozilla"    .= moz
-                                              , "version"    .= ver
-                                              , "basedir"    .= base
-                                              ]
+   toJSON (Config inst moz dar ver 
+                    base) = object [ "installed"  .= inst
+                                   , "mozilla"    .= moz
+                                   , "dartium"    .= dar
+                                   , "version"    .= ver
+                                   , "basedir"    .= base
+                                   ]
 
 yDecode :: FromJSON iFromJSONable => FilePath -> IO iFromJSONable
 yDecode fnm = do
