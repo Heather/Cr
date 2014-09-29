@@ -25,6 +25,9 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
+myVersion :: String
+myVersion = "Cr 0.4.7"
+
 main :: IO ()
 main = do args <- getArgs
           let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
@@ -72,7 +75,7 @@ options = [
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
-showV _    =    printf "Cr 0.4.6" >> exitWith ExitSuccess
+showV _    =    printf myVersion >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -86,14 +89,12 @@ forceReinstall opt  = return opt { optForce = True }
 justRun opt         = return opt { optRun = True }
 
 cSwrap = bracket_
-     ( do
-            putStrLn " ________________________________________________________ "
+     ( do   putStrLn " ________________________________________________________ "
             putStrLn "          And who the hell do you think I've become?      "
             putStrLn "  Like the person inside, I've been opening up.           "
             putStrLn "                            I'm onto you. (I'm onto you.) "
             putStrLn " ________________________________________________________ "
-    )( do
-            putStrLn " ________________________________________________________ "
+    )( do   putStrLn " ________________________________________________________ "
             putStrLn " Cut out your tongue and feed it to the liars.            "
             putStrLn "     Black hearts shed light on dying words.              "
             putStrLn "                                                          "
@@ -110,8 +111,15 @@ fireFox config = do
     if | uxExists  -> createProcess (proc (base </> "updater.exe") []) >> return ()
        | otherwise -> cSwrap $ do
             let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
-            printf " -> Getting %s\n" ver
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+            putStrLn " -> Warning: FireFox will be killed soon"
+#endif
+            printf " -> Downloading %s\n" ver
                 >> getFF fname
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+            pidk <- runCommand "taskkill /im firefox.exe /f"
+            waitForProcess pidk >> return ()
+#endif
             putStrLn " -> Installing"
             pid <- runCommand fname
             waitForProcess pid >>= \exit -> do
@@ -143,13 +151,10 @@ fireFoxR _ = fireFox =<< openConfig =<< getConfig
 
 go :: String -> String -> Bool -> Bool -> IO()
 go bl pl force run = do
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-    pidk <- runCommand "taskkill /im chrome.exe /f"
-    waitForProcess pidk >> return ()
-#endif
     when (not run) $ do
         ymlx   <- getConfig
         config <- openConfig ymlx
+        putStrLn myVersion
         if | mozilla config -> fireFox config
            | otherwise -> cSwrap $ do
             let installedNow = installed config
@@ -165,8 +170,16 @@ go bl pl force run = do
                 then putStrLn " -> This version is installed"
                 else do let new_config  = config { installed = ls }
                             fname       = "mini_installer.exe"
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+                        putStrLn " -> Warning: Chromium will be killed soon"
+#endif
                         printf " -> Downloading %s\n" ls
                             >> getChromium pl ls fname
+
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+                        pidk <- runCommand "taskkill /im chrome.exe /f"
+                        waitForProcess pidk >> return ()
+#endif
 
                         putStrLn " -> Installing"
                         pid <- runCommand fname
@@ -181,7 +194,6 @@ go bl pl force run = do
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
 
-    putStrLn " ________________________________________________________ "
     putStrLn " -> Running"
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
