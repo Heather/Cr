@@ -10,15 +10,13 @@ import System.Exit
 import System.Directory
 import System.Process
 
-import Network.HTTP
 import Network.Socket
+import Network.HTTP
 import Network.HTTP.Conduit
+import Network.HTTP.Types
 
 import Data.List
 import Data.Conduit.Binary (sinkFile)
-
-import Network.HTTP.Conduit
-import Network.HTTP.Types
 
 import qualified Data.Conduit as C
 import qualified Data.ByteString.Lazy as L
