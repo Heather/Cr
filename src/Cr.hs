@@ -26,7 +26,7 @@ import Control.Applicative
 import Control.Exception
 
 myVersion :: String
-myVersion = "Cr 0.4.8"
+myVersion = "Cr 0.4.9"
 
 main :: IO ()
 main = do args <- getArgs
@@ -214,20 +214,18 @@ go bl pl force run = do
                         pid <- runCommand fname
                         waitForProcess pid >>= \_ -> do
                             putStrLn " -> Clean Up"
-                            installFileExist <- doesFileExist fname
                             userProfilePath  <- getEnv "UserProfile"
                             let desctopLink = userProfilePath </> "Desktop" </> "Chromium.lnk"
                                 taskBarLink = userProfilePath </> "AppData"
                                                               </> "Roaming" </> "Microsoft" </> "Internet Explorer"
                                                               </> "Quick Launch" </> "User Pinned" </> "TaskBar" </> "Chromium.lnk"
-                            desktopFileExist <- doesFileExist desctopLink
-                            taskBarFileExist <- doesFileExist taskBarLink
-                            when installFileExist $ removeFile fname
-                            when desktopFileExist $ removeFile desctopLink
-                            when taskBarFileExist $ removeFile taskBarLink
+                                removeIfExist [x]    = doesFileExist x >>= (flip when $ removeFile x)
+                                removeIfExist (x:xs) = do removeIfExist [x]
+                                                          removeIfExist xs
+                                removeIfExist []     = return ()
+                            removeIfExist [fname, desctopLink, taskBarLink]                            
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
-
     putStrLn " -> Running"
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
