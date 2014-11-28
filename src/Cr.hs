@@ -25,8 +25,8 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-myVersion :: String
-myVersion = "Cr 0.4.9"
+import qualified Paths_Cr as My
+import Data.Version (showVersion)
 
 main :: IO ()
 main = do args <- getArgs
@@ -70,13 +70,14 @@ options = [
     Option ['h'] ["help"]    (NoArg showHelp) "Display Help",
     Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
     Option ['m'] ["mozilla"] (NoArg fireFoxR) "Install Nightly Firefox",
+    Option ['y'] ["yandex"]  (NoArg yandexR) "Install Yandex browser",
     Option ['d'] ["dartium"] (NoArg dartIumR) "Install Dartium",
     Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
     Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
     Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
-showV _    =    printf myVersion >> exitWith ExitSuccess
+showV _    =    printf (showVersion My.version) >> exitWith ExitSuccess
 showHelp _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" options
                 exitWith ExitSuccess
 
@@ -109,7 +110,7 @@ fireFox config = do
         ux   = base </> "firefox.exe"
         ver  = version config
     uxExists <- doesFileExist ux
-    if | uxExists  -> createProcess (proc ux []) >> return ()
+    if | uxExists  -> createProcess (proc ux []) >> return () -- TODO
        | otherwise -> cSwrap $ do
             let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
@@ -130,7 +131,33 @@ fireFox config = do
                     removeFile fname
                 exitWith exit
     exitWith ExitSuccess
-    
+
+ya config = do
+    let base = basedir config
+        ux   = base </> "Yandex.exe"
+    uxExists <- doesFileExist ux
+    if | uxExists  -> createProcess (proc ux []) >> return () -- TODO
+       | otherwise -> cSwrap $ do
+            let fname = "Yandex.exe"
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+            putStrLn " -> Warning: FireFox will be killed soon"
+#endif
+            printf " -> Downloading\n"
+                >> getYandex fname
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+            pidk <- runCommand "taskkill /im Yandex.exe /f"
+            waitForProcess pidk >> return ()
+#endif
+            putStrLn " -> Installing"
+            pid <- runCommand fname
+            waitForProcess pid >>= \exit -> do
+                fileExist <- doesFileExist fname
+                when fileExist $ do
+                    putStrLn " -> Clean Up"
+                    removeFile fname
+                exitWith exit
+    exitWith ExitSuccess
+
 dartIum config = do
     let base = basedir config
         chro = base </> "chrome.exe"
@@ -170,11 +197,13 @@ openConfig ymlx =
                    else return Config { installed="0"
                                       , mozilla=False
                                       , dartium=False
+                                      , yandex=False
                                       , version="33.0a1"
                                       , basedir="C:\\Program Files\\Nightly"
                                 }
 
 fireFoxR _ = fireFox =<< openConfig =<< getConfig
+yandexR _ = ya =<< openConfig =<< getConfig
 dartIumR _ = dartIum =<< openConfig =<< getConfig
 
 go :: String -> String -> Bool -> Bool -> IO()
@@ -182,9 +211,10 @@ go bl pl force run = do
     when (not run) $ do
         ymlx   <- getConfig
         config <- openConfig ymlx
-        putStrLn myVersion
+        putStrLn $ "Cr " ++ (showVersion My.version)
         if | mozilla config -> fireFox config
            | dartium config -> dartIum config
+           | yandex config -> ya config
            | otherwise -> cSwrap $ do
             let installedNow = installed config
             ls <- if bl == "last"

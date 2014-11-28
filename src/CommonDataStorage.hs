@@ -5,6 +5,7 @@ module CommonDataStorage
   , getChromium
   , getDartium
   , getFF
+  , getYandex
   ) where
 
 import System.IO
@@ -55,6 +56,20 @@ getDartium :: [Char] -> IO()
 getDartium fname = withSocketsDo $ do
     let url = "http://storage.googleapis.com/dart-archive/channels/dev/release/latest/dartium/"
               ++ fname
+    irequest  <- liftIO $ parseUrl url
+    fileExist <- doesFileExist fname
+    when fileExist $ do
+        putStrLn " -> Removing old version"
+        removeFile fname
+    withManager $ \manager -> do
+        let request = irequest
+             { method = methodGet }
+        response <- http request manager
+        responseBody response C.$$+- sinkFile fname
+
+getYandex :: [Char] -> IO()
+getYandex fname = withSocketsDo $ do
+    let url = "https://browser.yandex.ru/download/?custo=1"
     irequest  <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
     when fileExist $ do
