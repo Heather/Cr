@@ -10,13 +10,13 @@ import Win
 import Text.Printf
 import Text.Show
 
-import System.Environment( getArgs, getEnv )
-import System.Info (os)
+import System.Console.GetOpt
 import System.Directory
 import System.Process
 import System.Exit
-import System.Console.GetOpt
 import System.IO
+import System.Info (os)
+import System.Environment( getArgs, getEnv )
 import System.FilePath(takeDirectory, (</>))
 import System.Environment.Executable ( getExecutablePath )
 
@@ -29,16 +29,15 @@ import qualified Paths_Cr as My
 import Data.Version (showVersion)
 
 main :: IO ()
-main = do args <- getArgs
-          let ( actions, nonOpts, msgs ) = getOpt RequireOrder options args
+main = do (actions, _, _) <- getOpt RequireOrder options <$> getArgs
           Options { optPlatform   = platform,   optBuild      = build
                   , optForce      = force,      optRun        = run 
                   } <- foldl (>>=) (return defaultOptions) actions
-          user      <- getAppUserDataDirectory "Cr.lock"
-          locked    <- doesFileExist user
+          user   <- getAppUserDataDirectory "Cr.lock"
+          locked <- doesFileExist user
           let gogo = build platform force run
               start = myThreadId >>= \t -> withFile user WriteMode (do_program gogo t)
-                                           `finally` removeFile user
+                                             `finally` removeFile user
           if locked then do putStrLn "There is already one instance of this program running."
                             putStrLn "Remove lock and start application? (Y/N)"
                             hFlush stdout
@@ -105,21 +104,18 @@ cSwrap = bracket_
             putStrLn ""
     )
 
-fireFox config = do
+simpleInstall exeFile fname getF config = do
     let base = basedir config
-        ux   = base </> "firefox.exe"
-        ver  = version config
+        ux   = base </> exeFile
     uxExists <- doesFileExist ux
     if | uxExists  -> createProcess (proc ux []) >> return () -- TODO
        | otherwise -> cSwrap $ do
-            let fname = "firefox-" ++ ver ++ ".en-US.win32.installer.exe"
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-            putStrLn " -> Warning: FireFox will be killed soon"
+            putStrLn $ " -> Warning: " ++ exeFile ++ " will be killed soon"
 #endif
-            printf " -> Downloading %s\n" ver
-                >> getFF fname
+            printf " -> Downloading\n" >> getF fname
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-            pidk <- runCommand "taskkill /im firefox.exe /f"
+            pidk <- runCommand $ "taskkill /im " ++ exeFile ++ " /f"
             waitForProcess pidk >> return ()
 #endif
             putStrLn " -> Installing"
@@ -132,56 +128,11 @@ fireFox config = do
                 exitWith exit
     exitWith ExitSuccess
 
-ya config = do
-    let base = basedir config
-        ux   = base </> "Yandex.exe"
-    uxExists <- doesFileExist ux
-    if | uxExists  -> createProcess (proc ux []) >> return () -- TODO
-       | otherwise -> cSwrap $ do
-            let fname = "Yandex.exe"
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-            putStrLn " -> Warning: FireFox will be killed soon"
-#endif
-            printf " -> Downloading\n"
-                >> getYandex fname
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-            pidk <- runCommand "taskkill /im Yandex.exe /f"
-            waitForProcess pidk >> return ()
-#endif
-            putStrLn " -> Installing"
-            pid <- runCommand fname
-            waitForProcess pid >>= \exit -> do
-                fileExist <- doesFileExist fname
-                when fileExist $ do
-                    putStrLn " -> Clean Up"
-                    removeFile fname
-                exitWith exit
-    exitWith ExitSuccess
-
-dartIum config = do
-    let base = basedir config
-        chro = base </> "chrome.exe"
-    chExists <- doesFileExist chro
-    if | chExists  -> createProcess (proc chro []) >> return () -- TODO
-       | otherwise -> cSwrap $ do
-            let fname = "dartium-windows-ia32-release.zip"
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-            putStrLn " -> Warning: Dartium will be killed soon"
-#endif
-            printf " -> Downloading"
-                >> getDartium fname
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-            pidk <- runCommand "taskkill /im chrome.exe /f"
-            waitForProcess pidk >> return ()
-#endif
-            putStrLn " -> Unpack dartium-windows-ia32-release.zip"
-            putStrLn " -> Press any key"
-            getChar >> return ()
-            fileExist <- doesFileExist fname
-            when fileExist $ do
-                putStrLn " -> Clean Up"
-                removeFile fname
-    exitWith ExitSuccess
+fireFox config = simpleInstall "firefox.exe" fname getFF config
+  where fname = "firefox-" ++ (version config) 
+                           ++ ".en-US.win32.installer.exe"
+ya      = simpleInstall "Yandex.exe" "Yandex.exe" getYandex
+dartIum = simpleInstall "chrome.exe" "dartium-windows-ia32-release.zip" getDartium
 
 getConfig :: IO String
 getConfig =
@@ -203,7 +154,7 @@ openConfig ymlx =
                                 }
 
 fireFoxR _ = fireFox =<< openConfig =<< getConfig
-yandexR _ = ya =<< openConfig =<< getConfig
+yandexR _  = ya =<< openConfig =<< getConfig
 dartIumR _ = dartIum =<< openConfig =<< getConfig
 
 go :: String -> String -> Bool -> Bool -> IO()
