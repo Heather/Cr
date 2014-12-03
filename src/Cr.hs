@@ -128,11 +128,11 @@ simpleInstall exeFile fname getF config = do
                 exitWith exit
     exitWith ExitSuccess
 
-fireFox config = simpleInstall "firefox.exe" fname getFF config
+fireFox config = simpleInstall "firefox.exe" fname (download Firefox) config
   where fname = "firefox-" ++ (version config) 
                            ++ ".en-US.win32.installer.exe"
-ya      = simpleInstall "Yandex.exe" "Yandex.exe" getYandex
-dartIum = simpleInstall "chrome.exe" "dartium-windows-ia32-release.zip" getDartium
+ya      = simpleInstall "Yandex.exe" "Yandex.exe" $ download Yandex
+dartIum = simpleInstall "chrome.exe" "dartium-windows-ia32-release.zip" $ download Dartium
 
 getConfig :: IO String
 getConfig =

@@ -3,9 +3,8 @@
 module CommonDataStorage
   ( getLastVersionForPlatform
   , getChromium
-  , getDartium
-  , getFF
-  , getYandex
+  , Browser(..)
+  , download
   ) where
 
 import System.IO
@@ -52,24 +51,12 @@ getChromium platform version fname = withSocketsDo $ do
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
 
-getDartium :: [Char] -> IO()
-getDartium fname = withSocketsDo $ do
-    let url = "http://storage.googleapis.com/dart-archive/channels/dev/release/latest/dartium/"
-              ++ fname
-    irequest  <- liftIO $ parseUrl url
-    fileExist <- doesFileExist fname
-    when fileExist $ do
-        putStrLn " -> Removing old version"
-        removeFile fname
-    withManager $ \manager -> do
-        let request = irequest
-             { method = methodGet }
-        response <- http request manager
-        responseBody response C.$$+- sinkFile fname
+data Browser = Dartium
+             | Yandex
+             | Firefox
 
-getYandex :: [Char] -> IO()
-getYandex fname = withSocketsDo $ do
-    let url = "https://browser.yandex.ru/download/?custo=1"
+download :: Browser -> String -> IO()
+download browser fname = do
     irequest  <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
     when fileExist $ do
@@ -80,18 +67,7 @@ getYandex fname = withSocketsDo $ do
              { method = methodGet }
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
-
-getFF :: [Char] -> IO()
-getFF fname = withSocketsDo $ do
-    let url = "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/"
-              ++ fname
-    irequest  <- liftIO $ parseUrl url
-    fileExist <- doesFileExist fname
-    when fileExist $ do
-        putStrLn " -> Removing old version"
-        removeFile fname
-    withManager $ \manager -> do
-        let request = irequest
-             { method = methodGet }
-        response <- http request manager
-        responseBody response C.$$+- sinkFile fname
+  where url = case browser of
+                Dartium -> "http://storage.googleapis.com/dart-archive/channels/dev/release/latest/dartium/" ++ fname
+                Yandex -> "https://browser.yandex.ru/download/?custo=1"
+                Firefox -> "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/" ++ fname
