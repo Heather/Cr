@@ -151,6 +151,7 @@ openConfig ymlx =
                                       , yandex=False
                                       , version="33.0a1"
                                       , basedir="C:\\Program Files\\Nightly"
+                                      , autoclose=True
                                 }
 
 fireFoxR _ = fireFox =<< openConfig =<< getConfig
@@ -178,19 +179,19 @@ go bl pl force run = do
                     else return bl
             if installedNow == ls && not force
                 then putStrLn " -> This version is installed"
-                else do let new_config  = config { installed = ls }
+                else do let acls = autoclose config
+                            new_config  = config { installed = ls }
                             fname       = "mini_installer.exe"
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-                        putStrLn " -> Warning: Chromium will be killed soon"
+                        when acls $ putStrLn " -> Warning: Chromium will be killed soon"
 #endif
                         printf " -> Downloading %s\n" ls
                             >> getChromium pl ls fname
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-                        pidk <- runCommand "taskkill /im chrome.exe /f"
-                        waitForProcess pidk >> return ()
+                        when acls $ do pidk <- runCommand "taskkill /im chrome.exe /f"
+                                       waitForProcess pidk >> return ()
 #endif
-
                         putStrLn " -> Installing"
                         pid <- runCommand fname
                         waitForProcess pid >>= \_ -> do

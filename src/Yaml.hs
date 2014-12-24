@@ -20,6 +20,7 @@ data Config = Config { installed :: String
                      , yandex    :: Bool
                      , version   :: String
                      , basedir   :: String
+                     , autoclose :: Bool
                      } deriving (Show)
 
 instance FromJSON Config where
@@ -29,18 +30,20 @@ instance FromJSON Config where
                            v .: "dartium" <*>
                            v .: "yandex" <*>
                            v .: "version" <*>
-                           v .: "basedir"
+                           v .: "basedir" <*>
+                           v .: "autoclose"
     -- A non-Object value is of the wrong type, so fail.
     parseJSON _ = error "Can't parse Config from YAML/JSON"
 
 instance ToJSON Config where
-   toJSON (Config inst moz dar yan ver 
-                    base) = object [ "installed"  .= inst
+   toJSON (Config inst moz dar yan ver base
+                    acls) = object [ "installed"  .= inst
                                    , "mozilla"    .= moz
                                    , "dartium"    .= dar
                                    , "yandex"     .= yan
                                    , "version"    .= ver
                                    , "basedir"    .= base
+                                   , "autoclose"  .= acls
                                    ]
 
 yDecode :: FromJSON iFromJSONable => FilePath -> IO iFromJSONable
