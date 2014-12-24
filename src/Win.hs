@@ -9,7 +9,7 @@ import Graphics.Win32.GDI.Types
 import Foreign.C.String
 import Foreign.Marshal.Array
 
-foreign import stdcall unsafe "SHGetFolderPathW"
+foreign import ccall unsafe "SHGetFolderPathW" --stdcall
     cSHGetFolderPathW :: HWND -> INT -> HANDLE -> DWORD -> CWString -> IO LONG
 
 maxPath = 260
