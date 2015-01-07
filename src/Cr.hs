@@ -163,7 +163,7 @@ go bl pl force run = do
     when (not run) $ do
         ymlx   <- getConfig
         config <- openConfig ymlx
-        putStrLn $ "Cr " ++ (showVersion My.version)
+        putStrLn $ " Cr " ++ (showVersion My.version)
         if | mozilla config -> fireFox config
            | dartium config -> dartIum config
            | yandex config -> ya config
