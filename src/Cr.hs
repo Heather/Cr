@@ -151,7 +151,7 @@ openConfig ymlx =
                                       , yandex=False
                                       , version="33.0a1"
                                       , basedir="C:\\Program Files\\Nightly"
-                                      , autoclose=True
+                                      , autoclose=False
                                 }
 
 fireFoxR _ = fireFox =<< openConfig =<< getConfig
