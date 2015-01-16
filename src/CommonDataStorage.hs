@@ -29,17 +29,13 @@ import Control.Monad.IO.Class (liftIO)
 
 getLastVersionForPlatform :: [Char] -> IO String
 getLastVersionForPlatform platform = withSocketsDo
-    $ let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-                  ++ platform
-                  ++ "/LAST_CHANGE"
-      in simpleHttp url >>= \bs -> return ( S.decode $ L.unpack bs )
+    $ simpleHttp url >>= \bs -> return ( S.decode $ L.unpack bs )
+  where url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
+              ++ platform
+              ++ "/LAST_CHANGE"
 
 getChromium :: [Char] -> [Char] -> [Char] -> IO()
 getChromium platform version fname = withSocketsDo $ do
-    let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-              ++ platform ++ "/" 
-              ++ version ++ "/" 
-              ++ fname
     irequest  <- liftIO $ parseUrl url
     fileExist <- doesFileExist fname
     when fileExist $ do
@@ -50,6 +46,10 @@ getChromium platform version fname = withSocketsDo $ do
              { method = methodGet }
         response <- http request manager
         responseBody response C.$$+- sinkFile fname
+  where url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
+              ++ platform ++ "/" 
+              ++ version ++ "/" 
+              ++ fname
 
 data Browser = Dartium
              | Yandex

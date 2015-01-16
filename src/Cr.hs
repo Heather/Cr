@@ -197,15 +197,15 @@ go bl pl force run = do
                         waitForProcess pid >>= \_ -> do
                             putStrLn " -> Clean Up"
                             userProfilePath  <- getEnv "UserProfile"
-                            let desctopLink = userProfilePath </> "Desktop" </> "Chromium.lnk"
-                                taskBarLink = userProfilePath </> "AppData"
-                                                              </> "Roaming" </> "Microsoft" </> "Internet Explorer"
-                                                              </> "Quick Launch" </> "User Pinned" </> "TaskBar" </> "Chromium.lnk"
-                                removeIfExist [x]    = doesFileExist x >>= (flip when $ removeFile x)
+                            let removeIfExist [x]    = doesFileExist x >>= (flip when $ removeFile x)
                                 removeIfExist (x:xs) = do removeIfExist [x]
                                                           removeIfExist xs
                                 removeIfExist []     = return ()
-                            removeIfExist [fname, desctopLink, taskBarLink]                            
+                            removeIfExist [fname
+                                , userProfilePath </> "Desktop" </> "Chromium.lnk"
+                                , userProfilePath </> "AppData"
+                                                  </> "Roaming" </> "Microsoft" </> "Internet Explorer"
+                                                  </> "Quick Launch" </> "User Pinned" </> "TaskBar" </> "Chromium.lnk"]                            
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
     putStrLn " -> Running"
