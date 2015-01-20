@@ -10,7 +10,9 @@ module Installer
   ) where
 
 import Yaml
-import CommonDataStorage
+
+import Downloader
+import CustomDownloader
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
 import Win
