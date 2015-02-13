@@ -75,16 +75,21 @@ install bl pl force run = do
                         pid <- runCommand fname
                         waitForProcess pid >>= \_ -> do
                             putStrLn " -> Clean Up"
-                            userProfilePath  <- getEnv "UserProfile"
                             let removeIfExist [x]    = doesFileExist x >>= (flip when $ removeFile x)
                                 removeIfExist (x:xs) = do removeIfExist [x]
                                                           removeIfExist xs
                                 removeIfExist []     = return ()
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+                            desktop <- getDesktopFolder
+                            appshell <- getShellRoamingFolder
                             removeIfExist [fname
-                                , userProfilePath </> "Desktop" </> "Chromium.lnk"
-                                , userProfilePath </> "AppData"
-                                                  </> "Roaming" </> "Microsoft" </> "Internet Explorer"
-                                                  </> "Quick Launch" </> "User Pinned" </> "TaskBar" </> "Chromium.lnk"]                            
+                                , desktop  </> "Chromium.lnk"
+                                , appshell </> "Microsoft" </> "Internet Explorer"
+                                           </> "Quick Launch" </> "User Pinned"
+                                           </> "TaskBar" </> "Chromium.lnk"]
+#else
+                            removeIfExist fname
+#endif
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
     putStrLn " -> Running"
