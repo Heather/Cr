@@ -88,7 +88,7 @@ install bl pl force run = do
                                            </> "Quick Launch" </> "User Pinned"
                                            </> "TaskBar" </> "Chromium.lnk"]
 #else
-                            removeIfExist fname
+                            removeIfExist [fname]
 #endif
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
