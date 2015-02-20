@@ -1,25 +1,10 @@
-Cr
-==
-
 [![Build Status](https://travis-ci.org/Heather/Cr.png?branch=master)](https://travis-ci.org/Heather/Cr)
 
-Smart chromium installer / updater
+Smart browser installer / updater
+=================================
 
-Binary
-------
+<img align="left" src="http://fc01.deviantart.net/fs71/f/2013/225/8/d/render_anime_girl__3_by_angietmnt-d6i0np2.png"/>
 
  - Run Cr
  - That's all, chromium is updated to last version or installed.
-
-```haskell
-getChromium :: [Char] → [Char] → IO()
-getChromium s v = withSocketsDo $ do
-    let url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
-                        ++ s ++ "/" ++ v ++ "/mini_installer.exe"
-    irequest <- liftIO $ parseUrl url
-    withManager $ \manager → do
-        let request = irequest
-             { method = methodGet }
-        response <- http request manager
-        responseBody response C.$$+- sinkFile "mini-installer.exe"
-```
+ - Discover other stuff with --help
