@@ -1,5 +1,5 @@
 name: Cr
-version: 0.5.7
+version: 0.5.8
 license: BSD3
 
 build-type: Simple
@@ -24,4 +24,4 @@ Executable    Cr
     , filepath
     , executable-path
     , yaml
-    , Win32
+    , Win32 >= 2.3.1.0

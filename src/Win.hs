@@ -19,13 +19,11 @@ maxPath = 260
 
 -- Someone just should fix System.Win32.Shell
 -- But they don't accept pull requests for ages :(
-cSIDL_LOCAL_APPDATA = 0x001c -- ShlObj.h in MS Platform SDK
+-- ShlObj.h in MS Platform SDK
 cSIDL_DESKTOPDIRECTORY = 0x0010
 
 getShellFolder :: IO String
-getShellFolder = allocaArray0 maxPath $ \path -> do
-    cSHGetFolderPathW nullHANDLE cSIDL_LOCAL_APPDATA nullHANDLE 0 path
-    peekCWString path
+getShellFolder = sHGetFolderPath nullPtr cSIDL_LOCAL_APPDATA nullPtr 0
 
 getDesktopFolder :: IO String
 getDesktopFolder = allocaArray0 maxPath $ \path -> do
