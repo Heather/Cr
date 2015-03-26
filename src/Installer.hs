@@ -65,9 +65,12 @@ install bl pl force run = do
                         when acls $ putStrLn " -> Warning: Chromium will be killed soon"
 #endif
                         printf " -> Downloading %s\n" ls
-                            >> getChromium pl ls fname
-
+                        getChromium pl ls fname `catch` ( 
+                              \err -> do putStrLn $ show (err :: IOException)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+                                         putStrLn "Press any key.."
+                                         getChar >> return ())
+
                         when acls $ do pidk <- runCommand "taskkill /im chrome.exe /f"
                                        waitForProcess pidk >> return ()
 #endif
