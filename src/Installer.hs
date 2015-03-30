@@ -71,8 +71,10 @@ install bl pl force run = do
                               \err → do putStrLn $ show (err ∷ IOException)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
                                         putStrLn "Press any key.."
-                                        getChar >> return ())
-
+                                        getChar >> return ()
+#endif
+                                    )
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
                         when acls $ do pidk ← runCommand "taskkill /im chrome.exe /f"
                                        waitForProcess pidk >> return ()
 #endif
