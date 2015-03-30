@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiWayIf, LambdaCase #-}
+{-# LANGUAGE MultiWayIf, LambdaCase, UnicodeSyntax #-}
 
 import Installer
 
@@ -18,42 +18,45 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
-main :: IO ()
-main = do (actions, _, _) <- getOpt RequireOrder options <$> getArgs
+import Control.Monad.Unicode
+import Data.Foldable.Unicode
+
+main ∷ IO ()
+main = do (actions, _, _) ← getOpt RequireOrder options <$> getArgs
           Options { optPlatform   = platform,   optBuild      = build
                   , optForce      = force,      optRun        = run 
-                  } <- foldl (>>=) (return defaultOptions) actions
-          user   <- getAppUserDataDirectory "Cr.lock"
-          locked <- doesFileExist user
+                  } ← foldl (≫=) (return defaultOptions) actions
+          user   ← getAppUserDataDirectory "Cr.lock"
+          locked ← doesFileExist user
           let gogo = build platform force run
-              start = myThreadId >>= \t -> withFile user WriteMode (do_program gogo t)
+              start = myThreadId ≫= \t → withFile user WriteMode (do_program gogo t)
                                              `finally` removeFile user
           if locked then do putStrLn "There is already one instance of this program running."
                             putStrLn "Remove lock and start application? (Y/N)"
                             hFlush stdout
-                            getLine >>= \case w | w `elem` ["Y", "y"] -> start
-                                              w | w `elem` ["N", "n"] -> return ()
-                                              _ -> return ()
+                            getLine ≫= \case w | w ∈ ["Y", "y"] → start
+                                             w | w ∈ ["N", "n"] → return ()
+                                             _ → return ()
                     else start
 
-do_program :: IO () -> ThreadId -> Handle -> IO ()
+do_program ∷ IO () → ThreadId → Handle → IO ()
 do_program gogo _ _ = gogo
 
 data Options = Options
-    { optPlatform  :: String,   optForce :: Bool
-    , optRun :: Bool,           optBuild :: String ->  Bool -> Bool -> IO()
+    { optPlatform  ∷ String,   optForce ∷ Bool
+    , optRun ∷ Bool,           optBuild ∷ String →  Bool → Bool → IO()
     }
 
-defaultOptions :: Options
+defaultOptions ∷ Options
 defaultOptions = Options {
-    optPlatform = if | os `elem` ["win32", "mingw32", "cygwin32"] -> "Win"
-                     | os `elem` ["darwin"] -> "Mac"
-                     | otherwise -> "Linux"
+    optPlatform = if | os ∈ ["win32", "mingw32", "cygwin32"] → "Win"
+                     | os ∈ ["darwin"] → "Mac"
+                     | otherwise → "Linux"
     , optForce = False, optRun   = False
     , optBuild = install "last"
     }
 
-options :: [OptDescr (Options -> IO Options)]
+options ∷ [OptDescr (Options → IO Options)]
 options = [
     Option ['v'] ["version"] (NoArg showV) "Display Version",
     Option ['h'] ["help"]    (NoArg (showHelp options)) "Display Help",

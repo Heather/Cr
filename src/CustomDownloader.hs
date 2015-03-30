@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, UnicodeSyntax #-}
 
 module CustomDownloader
   ( Browser(..)
@@ -27,19 +27,19 @@ data Browser = Dartium
              | Yandex
              | Firefox
 
-download :: Browser -> String -> IO()
+download ∷ Browser → String → IO()
 download browser fname = do
-    irequest  <- liftIO $ parseUrl url
-    fileExist <- doesFileExist fname
+    irequest  ← liftIO $ parseUrl url
+    fileExist ← doesFileExist fname
     when fileExist $ do
         putStrLn " -> Removing old version"
         removeFile fname
-    withManager $ \manager -> do
+    withManager $ \manager → do
         let request = irequest
              { method = methodGet }
-        response <- http request manager
+        response ← http request manager
         responseBody response C.$$+- sinkFile fname
   where url = case browser of
-                Dartium -> "http://storage.googleapis.com/dart-archive/channels/dev/release/latest/dartium/" ++ fname
-                Yandex -> "https://browser.yandex.ru/download/?custo=1"
-                Firefox -> "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/" ++ fname
+                Dartium → "http://storage.googleapis.com/dart-archive/channels/dev/release/latest/dartium/" ++ fname
+                Yandex → "https://browser.yandex.ru/download/?custo=1"
+                Firefox → "http://ftp.mozilla.org/pub/mozilla.org/firefox/nightly/latest-trunk/" ++ fname

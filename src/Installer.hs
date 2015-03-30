@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiWayIf, LambdaCase #-}
+{-# LANGUAGE CPP, MultiWayIf, LambdaCase, UnicodeSyntax #-}
 
 module Installer
   ( showV
@@ -33,30 +33,32 @@ import Control.Monad
 import Control.Applicative
 import Control.Exception
 
+import Prelude.Unicode
+
 showChromeVersion _ = do getLastVersionForPlatform "Win"
                             >>= printf "last: %s\n"
                          exitWith ExitSuccess
 
-install :: String -> String -> Bool -> Bool -> IO()
+install ∷ String → String → Bool → Bool → IO()
 install bl pl force run = do
     when (not run) $ do
-        ymlx   <- getConfig
-        config <- openConfig ymlx
+        ymlx   ← getConfig
+        config ← openConfig ymlx
         putStrLn $ " Cr " ++ showMyV
-        if | mozilla config -> fireFox config
-           | dartium config -> dartIum config
-           | yandex config -> ya config
-           | otherwise -> cSwrap $ do
+        if | mozilla config → fireFox config
+           | dartium config → dartIum config
+           | yandex config → ya config
+           | otherwise → cSwrap $ do
             let installedNow = installed config
-            ls <- if bl == "last"
+            ls ← if bl == "last"
                     then do putStrLn " -> Checking for the last version"
                             try $ getLastVersionForPlatform pl
-                                :: IO (Either SomeException String)
-                            >>= \case Left what -> do putStrLn $ show what
-                                                      return installedNow
-                                      Right val -> return val
+                                ∷ IO (Either SomeException String)
+                            >>= \case Left what → do putStrLn $ show what
+                                                     return installedNow
+                                      Right val → return val
                     else return bl
-            if installedNow == ls && not force
+            if installedNow == ls ∧ not force
                 then putStrLn " -> This version is installed"
                 else do let acls = autoclose config
                             new_config  = config { installed = ls }
@@ -66,25 +68,25 @@ install bl pl force run = do
 #endif
                         printf " -> Downloading %s\n" ls
                         getChromium pl ls fname `catch` ( 
-                              \err -> do putStrLn $ show (err :: IOException)
+                              \err → do putStrLn $ show (err ∷ IOException)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-                                         putStrLn "Press any key.."
-                                         getChar >> return ())
+                                        putStrLn "Press any key.."
+                                        getChar >> return ())
 
-                        when acls $ do pidk <- runCommand "taskkill /im chrome.exe /f"
+                        when acls $ do pidk ← runCommand "taskkill /im chrome.exe /f"
                                        waitForProcess pidk >> return ()
 #endif
                         putStrLn " -> Installing"
-                        pid <- runCommand fname
-                        waitForProcess pid >>= \_ -> do
+                        pid ← runCommand fname
+                        waitForProcess pid >>= \_ → do
                             putStrLn " -> Clean Up"
                             let removeIfExist [x]    = doesFileExist x >>= (flip when $ removeFile x)
                                 removeIfExist (x:xs) = do removeIfExist [x]
                                                           removeIfExist xs
                                 removeIfExist []     = return ()
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-                            desktop <- getDesktopFolder
-                            appshell <- getShellRoamingFolder
+                            desktop ← getDesktopFolder
+                            appshell ← getShellRoamingFolder
                             removeIfExist [fname
                                 , desktop  </> "Chromium.lnk"
                                 , appshell </> "Microsoft" </> "Internet Explorer"
@@ -95,10 +97,10 @@ install bl pl force run = do
 #endif
                             putStrLn " -> Update installed version"
                             yEncode ymlx new_config
-    putStrLn " -> Running"
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-    getShellFolder >>= \shellfolder ->
+        putStrLn " -> Running"
+    getShellFolder >>= \shellfolder →
         let pchromium = shellfolder </> "Chromium\\Application\\chrome.exe"
         in createProcess (proc pchromium []) >> return ()
 #endif

@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE MultiWayIf, UnicodeSyntax #-}
 
 module InstallHelper
   ( cSwrap
@@ -16,6 +16,8 @@ import System.Environment.Executable ( getExecutablePath )
 import Control.Exception
 import Control.Applicative
 
+import Prelude.Unicode
+
 cSwrap = bracket_
      ( do   putStrLn " ________________________________________________________ "
             putStrLn "          And who the hell do you think I've become?      "
@@ -31,17 +33,17 @@ cSwrap = bracket_
             putStrLn ""
     )
 
-getConfig :: IO String
+getConfig ∷ IO String
 getConfig =
-    if | os `elem` ["win32", "mingw32", "cygwin32"] -> (</> "Cr.yml") 
-                                                        <$> takeDirectory 
-                                                        <$> getExecutablePath
-       | otherwise -> return "/etc/Cr.yml"
+    if | os ∈ ["win32", "mingw32", "cygwin32"] → (</> "Cr.yml") 
+                                                  <$> takeDirectory 
+                                                  <$> getExecutablePath
+       | otherwise → return "/etc/Cr.yml"
 
-openConfig :: String -> IO Config
+openConfig ∷ String → IO Config
 openConfig ymlx =
-    doesFileExist ymlx >>= \isCfgEx ->
-        if isCfgEx then yDecode ymlx :: IO Config
+    doesFileExist ymlx >>= \isCfgEx →
+        if isCfgEx then yDecode ymlx ∷ IO Config
                    else return Config { installed="0"
                                       , mozilla=False
                                       , dartium=False

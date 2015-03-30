@@ -1,4 +1,4 @@
-{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE ForeignFunctionInterface, UnicodeSyntax #-}
 
 module Win
   ( getShellFolder
@@ -12,11 +12,11 @@ import Graphics.Win32.GDI.Types
 import Foreign.C.String
 import Foreign.Marshal.Array
 
-getShellFolder :: IO String
+getShellFolder ∷ IO String
 getShellFolder = sHGetFolderPath nullPtr cSIDL_LOCAL_APPDATA nullPtr 0
 
-getDesktopFolder :: IO String
+getDesktopFolder ∷ IO String
 getDesktopFolder = sHGetFolderPath nullPtr cSIDL_DESKTOPDIRECTORY nullPtr 0
 
-getShellRoamingFolder :: IO String
+getShellRoamingFolder ∷ IO String
 getShellRoamingFolder = sHGetFolderPath nullPtr cSIDL_APPDATA nullPtr 0
