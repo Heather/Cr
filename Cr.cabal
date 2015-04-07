@@ -1,5 +1,5 @@
 name: Cr
-version: 0.6.1
+version: 0.6.2
 license: BSD3
 
 build-type: Simple
@@ -11,6 +11,7 @@ Executable    Cr
   Build-Depends:
       base
     , base-unicode-symbols
+    , lifted-base
     , bytestring
     , http-conduit
     , network
@@ -18,6 +19,7 @@ Executable    Cr
     , HTTP
     , process
     , conduit
+    , resourcet
     , conduit-extra >= 1.1.0
     , http-types
     , transformers
