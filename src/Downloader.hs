@@ -35,8 +35,8 @@ getLastVersionForPlatform platform = withSocketsDo
 
 retryOnTimeout ∷ ResourceT IO a → ResourceT IO a
 retryOnTimeout action = catch action $ \ (_ :: HttpException) → do
-    liftIO $ putStrLn "Timed out. Trying again."
-    liftIO $ threadDelay 5000000
+    liftIO $ putStrLn " -> Timed out. Trying again."
+    liftIO $ threadDelay 2000000
     action
 
 getChromium ∷ String → String → String → IO()
