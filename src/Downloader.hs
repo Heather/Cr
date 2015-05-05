@@ -29,7 +29,8 @@ import Control.Monad.IO.Class (liftIO)
 getLastVersionForPlatform ∷ String → IO String
 getLastVersionForPlatform platform = withSocketsDo
     $ simpleHttp url >>= \bs → return ( S.decode $ L.unpack bs )
-  where url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/" 
+  where url = "http://storage.googleapis.com/chromium-browser-continuous/"
+			  -- http://commondatastorage.googleapis.com/chromium-browser-snapshots/
               ++ platform
               ++ "/LAST_CHANGE"
 
@@ -52,7 +53,8 @@ getChromium platform version fname = withSocketsDo $ do
              , responseTimeout = Just 10000000 }
         response ← retryOnTimeout ( http request manager )
         responseBody response C.$$+- sinkFile fname
-  where url = "http://commondatastorage.googleapis.com/chromium-browser-snapshots/"
+  where url = "http://storage.googleapis.com/chromium-browser-continuous/"
+		      -- http://commondatastorage.googleapis.com/chromium-browser-snapshots/
               ++ platform ++ "/"
               ++ version ++ "/"
               ++ fname

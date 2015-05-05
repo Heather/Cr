@@ -11,12 +11,14 @@ import System.Process
 import System.Exit
 import System.IO
 import System.Info (os)
-import System.Environment( getArgs )
+import System.Environment (getArgs)
 
 import Control.Concurrent
 import Control.Monad
 import Control.Applicative
 import Control.Exception
+
+import Foreign.Storable (sizeOf)
 
 import Control.Monad.Unicode
 import Data.Foldable.Unicode
@@ -24,7 +26,7 @@ import Data.Foldable.Unicode
 main ∷ IO ()
 main = do (actions, _, _) ← getOpt RequireOrder options <$> getArgs
           Options { optPlatform   = platform,   optBuild      = build
-                  , optForce      = force,      optRun        = run 
+                  , optForce      = force,      optRun        = run
                   } ← foldl (≫=) (return defaultOptions) actions
           user   ← getAppUserDataDirectory "Cr.lock"
           locked ← doesFileExist user
@@ -34,9 +36,9 @@ main = do (actions, _, _) ← getOpt RequireOrder options <$> getArgs
           if locked then do putStrLn "There is already one instance of this program running."
                             putStrLn "Remove lock and start application? (Y/N)"
                             hFlush stdout
-                            getLine ≫= \case w | w ∈ ["Y", "y"] → start
-                                             w | w ∈ ["N", "n"] → return ()
-                                             _ → return ()
+                            getLine >>= \case w | w ∈ ["Y", "y"] → start
+                                              w | w ∈ ["N", "n"] → return ()
+                                              _ → return ()
                     else start
 
 do_program ∷ IO () → ThreadId → Handle → IO ()
@@ -49,7 +51,9 @@ data Options = Options
 
 defaultOptions ∷ Options
 defaultOptions = Options {
-    optPlatform = if | os ∈ ["win32", "mingw32", "cygwin32"] → "Win"
+    optPlatform = if | os ∈ ["win32", "mingw32", "cygwin32"] →
+						if sizeOf (undefined :: Int) == 8 then "Win_x64"
+													      else "Win"
                      | os ∈ ["darwin"] → "Mac"
                      | otherwise → "Linux"
     , optForce = False, optRun   = False

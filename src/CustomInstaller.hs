@@ -16,7 +16,7 @@ import System.Directory
 import System.Process
 import System.Exit
 import System.IO
-import System.FilePath((</>))
+import System.FilePath ((</>))
 
 import Control.Concurrent
 import Control.Monad
@@ -49,7 +49,7 @@ simpleInstall exeFile fname getF config = do
     exitWith ExitSuccess
 
 fireFox config = simpleInstall "firefox.exe" fname (download Firefox) config
-  where fname = "firefox-" ++ (version config) 
+  where fname = "firefox-" ++ (version config)
                            ++ ".en-US.win32.installer.exe"
 ya      = simpleInstall "Yandex.exe" "Yandex.exe" $ download Yandex
 dartIum = simpleInstall "chrome.exe" "dartium-windows-ia32-release.zip" $ download Dartium

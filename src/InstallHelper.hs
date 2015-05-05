@@ -9,9 +9,9 @@ module InstallHelper
 import Yaml
 
 import System.Directory
-import System.FilePath(takeDirectory, (</>))
+import System.FilePath (takeDirectory, (</>))
 import System.Info (os)
-import System.Environment.Executable ( getExecutablePath )
+import System.Environment.Executable (getExecutablePath)
 
 import Control.Exception
 import Control.Applicative
@@ -35,8 +35,8 @@ cSwrap = bracket_
 
 getConfig ∷ IO String
 getConfig =
-    if | os ∈ ["win32", "mingw32", "cygwin32"] → (</> "Cr.yml") 
-                                                  <$> takeDirectory 
+    if | os ∈ ["win32", "mingw32", "cygwin32"] → (</> "Cr.yml")
+                                                  <$> takeDirectory
                                                   <$> getExecutablePath
        | otherwise → return "/etc/Cr.yml"
 

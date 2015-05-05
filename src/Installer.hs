@@ -25,8 +25,8 @@ import System.Directory
 import System.Process
 import System.Exit
 import System.IO
-import System.Environment( getEnv )
-import System.FilePath((</>))
+import System.Environment (getEnv)
+import System.FilePath ((</>))
 
 import Control.Concurrent
 import Control.Monad
@@ -35,7 +35,7 @@ import Control.Exception
 
 import Prelude.Unicode
 
-showChromeVersion _ = do getLastVersionForPlatform "Win"
+showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win
                             >>= printf "last: %s\n"
                          exitWith ExitSuccess
 
@@ -67,7 +67,7 @@ install bl pl force run = do
                         when acls $ putStrLn " -> Warning: Chromium will be killed soon"
 #endif
                         printf " -> Downloading %s\n" ls
-                        getChromium pl ls fname `catch` ( 
+                        getChromium pl ls fname `catch` (
                               \err → do putStrLn $ show (err ∷ IOException)
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
                                         putStrLn "Press any key.."
