@@ -30,7 +30,6 @@ getLastVersionForPlatform ∷ String → IO String
 getLastVersionForPlatform platform = withSocketsDo
     $ simpleHttp url >>= \bs → return ( S.decode $ L.unpack bs )
   where url = "http://storage.googleapis.com/chromium-browser-continuous/"
-			  -- http://commondatastorage.googleapis.com/chromium-browser-snapshots/
               ++ platform
               ++ "/LAST_CHANGE"
 
@@ -54,7 +53,6 @@ getChromium platform version fname = withSocketsDo $ do
         response ← retryOnTimeout ( http request manager )
         responseBody response C.$$+- sinkFile fname
   where url = "http://storage.googleapis.com/chromium-browser-continuous/"
-		      -- http://commondatastorage.googleapis.com/chromium-browser-snapshots/
               ++ platform ++ "/"
               ++ version ++ "/"
               ++ fname

@@ -45,10 +45,6 @@ openConfig ymlx =
     doesFileExist ymlx >>= \isCfgEx →
         if isCfgEx then yDecode ymlx ∷ IO Config
                    else return Config { installed="0"
-                                      , mozilla=False
-                                      , dartium=False
-                                      , yandex=False
-                                      , version="33.0a1"
                                       , basedir="C:\\Program Files\\Nightly"
                                       , autoclose=False
                                 }
