@@ -16,24 +16,20 @@ import Control.Applicative.Unicode
 import qualified Data.ByteString.Char8 as BS
 
 data Config = Config { installed ∷ String
-                     , basedir   ∷ String
                      , autoclose ∷ Bool
                      } deriving (Show)
 
 instance FromJSON Config where
     parseJSON (Object v) = Config <$>
                            v .: "installed" ⊛
-                           v .: "basedir" ⊛
                            v .: "autoclose"
     -- A non-Object value is of the wrong type, so fail.
     parseJSON _ = error "Can't parse Config from YAML/JSON"
 
 instance ToJSON Config where
-   toJSON (Config inst base
-                    acls) = object [ "installed"  .= inst
-                                   , "basedir"    .= base
-                                   , "autoclose"  .= acls
-                                   ]
+   toJSON (Config inst acls) = object [ "installed"  .= inst
+                                      , "autoclose"  .= acls
+                                      ]
 
 yDecode ∷ FromJSON iFromJSONable => FilePath → IO iFromJSONable
 yDecode fnm = do
