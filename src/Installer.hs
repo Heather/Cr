@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiWayIf, LambdaCase, UnicodeSyntax #-}
+{-# LANGUAGE CPP, MultiWayIf, LambdaCase, UnicodeSyntax, RankNTypes #-}
 
 module Installer
   ( showV
@@ -17,22 +17,18 @@ import Win
 #endif
 
 import Text.Printf
-import Text.Show
 
 import System.Directory
 import System.Process
 import System.Exit
-import System.IO
-import System.Environment (getEnv)
 import System.FilePath ((</>))
 
-import Control.Concurrent
 import Control.Monad
-import Control.Applicative
 import Control.Exception
 
 import Prelude.Unicode
 
+showChromeVersion :: ∀ t b. t → IO b
 showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win
                             >>= printf "last: %s\n"
                          exitWith ExitSuccess
@@ -42,7 +38,7 @@ install bl pl force run = do
     when (not run) $ cSwrap $ do
         ymlx   ← getConfig
         config ← openConfig ymlx
-        putStrLn $ " Cr " ++ showMyV
+        --putStrLn $ " Cr " ++ showMyV
         let installedNow = installed config
         ls ← if bl == "last"
                 then do putStrLn " -> Checking for the last version"

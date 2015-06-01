@@ -1,26 +1,22 @@
-{-# LANGUAGE MultiWayIf, LambdaCase, UnicodeSyntax #-}
+{-# LANGUAGE MultiWayIf #-}
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE KindSignatures #-}
 
 import Installer
 
-import Text.Printf
-import Text.Show
-
 import System.Console.GetOpt
 import System.Directory
-import System.Process
-import System.Exit
 import System.IO
 import System.Info (os)
 import System.Environment (getArgs)
 
 import Control.Concurrent
-import Control.Monad
-import Control.Applicative
 import Control.Exception
+import Control.Monad.Unicode
 
 import Foreign.Storable (sizeOf)
-
-import Control.Monad.Unicode
 import Data.Foldable.Unicode
 
 main ∷ IO ()
@@ -52,8 +48,8 @@ data Options = Options
 defaultOptions ∷ Options
 defaultOptions = Options {
     optPlatform = if | os ∈ ["win32", "mingw32", "cygwin32"] →
-						if sizeOf (undefined :: Int) == 8 then "Win_x64"
-													      else "Win"
+                       if sizeOf (undefined :: Int) == 8 then "Win_x64"
+                                                         else "Win"
                      | os ∈ ["darwin"] → "Mac"
                      | otherwise → "Linux"
     , optForce = False, optRun   = False
@@ -71,7 +67,14 @@ options = [
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
 
-getp arg opt        = return opt { optPlatform = arg }
-getb arg opt        = return opt { optBuild = install arg }
-forceReinstall opt  = return opt { optForce = True }
-justRun opt         = return opt { optRun = True }
+getp :: ∀ (m :: * -> *). Monad m ⇒ String → Options → m Options
+getp arg opt = return opt { optPlatform = arg }
+
+getb :: ∀ (m :: * -> *). Monad m ⇒ String → Options → m Options
+getb arg opt = return opt { optBuild = install arg }
+
+forceReinstall :: ∀ (m :: * -> *). Monad m ⇒ Options → m Options
+forceReinstall opt = return opt { optForce = True }
+
+justRun :: ∀ (m :: * -> *). Monad m ⇒ Options → m Options
+justRun opt = return opt { optRun = True }

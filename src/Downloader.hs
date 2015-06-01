@@ -5,15 +5,12 @@ module Downloader
   , getChromium
   ) where
 
-import System.IO
-import System.Directory
 
+import System.Directory
 import Network.Socket
-import Network.HTTP
 import Network.HTTP.Conduit
 import Network.HTTP.Types
 
-import Data.List
 import Data.Conduit.Binary (sinkFile)
 
 import qualified Data.Conduit as C

@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiWayIf, UnicodeSyntax #-}
+{-# LANGUAGE MultiWayIf, UnicodeSyntax, RankNTypes #-}
 
 module InstallHelper
   ( cSwrap
@@ -14,10 +14,9 @@ import System.Info (os)
 import System.Environment.Executable (getExecutablePath)
 
 import Control.Exception
-import Control.Applicative
-
 import Prelude.Unicode
 
+cSwrap :: ∀ c. IO c → IO c
 cSwrap = bracket_
      ( do   putStrLn " ________________________________________________________ "
             putStrLn "          And who the hell do you think I've become?      "

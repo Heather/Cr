@@ -9,8 +9,6 @@ module Yaml
   ) where
 
 import Data.Yaml
-
-import Control.Applicative
 import Control.Applicative.Unicode
 
 import qualified Data.ByteString.Char8 as BS
