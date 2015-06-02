@@ -1,4 +1,6 @@
-{-# LANGUAGE UnicodeSyntax, RankNTypes #-}
+{-# LANGUAGE UnicodeSyntax
+  , RankNTypes
+  , Safe #-}
 
 module Misc
   ( showMyV

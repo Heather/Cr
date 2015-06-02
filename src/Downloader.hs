@@ -1,10 +1,11 @@
-{-# LANGUAGE OverloadedStrings, UnicodeSyntax, ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings
+  , UnicodeSyntax
+  , ScopedTypeVariables #-}
 
 module Downloader
   ( getLastVersionForPlatform
   , getChromium
   ) where
-
 
 import System.Directory
 import Network.Socket

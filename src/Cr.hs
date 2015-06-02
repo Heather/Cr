@@ -1,8 +1,8 @@
-{-# LANGUAGE MultiWayIf #-}
-{-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE UnicodeSyntax #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE MultiWayIf
+  , LambdaCase
+  , UnicodeSyntax
+  , RankNTypes
+  , KindSignatures #-}
 
 import Installer
 

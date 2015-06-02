@@ -1,4 +1,8 @@
-{-# LANGUAGE CPP, MultiWayIf, LambdaCase, UnicodeSyntax, RankNTypes #-}
+{-# LANGUAGE CPP
+  , MultiWayIf
+  , LambdaCase
+  , UnicodeSyntax
+  , RankNTypes #-}
 
 module Installer
   ( showV

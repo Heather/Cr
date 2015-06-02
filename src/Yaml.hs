@@ -1,4 +1,5 @@
-{-# LANGUAGE OverloadedStrings, UnicodeSyntax #-}
+{-# LANGUAGE OverloadedStrings
+  , UnicodeSyntax #-}
 
 module Yaml
   ( Config(..)

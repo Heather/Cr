@@ -1,4 +1,6 @@
-{-# LANGUAGE MultiWayIf, UnicodeSyntax, RankNTypes #-}
+{-# LANGUAGE MultiWayIf
+  , UnicodeSyntax
+  , RankNTypes #-}
 
 module InstallHelper
   ( cSwrap
