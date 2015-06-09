@@ -14,6 +14,7 @@ module Yaml
 import Data.Yaml
 import Data.Maybe (fromMaybe)
 
+import Control.Applicative
 import Control.Applicative.Unicode
 
 import qualified Data.ByteString.Char8 as BS
