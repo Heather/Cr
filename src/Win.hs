@@ -1,6 +1,7 @@
-{-# LANGUAGE ForeignFunctionInterface
-  , UnicodeSyntax
-  , Safe #-}
+{-# LANGUAGE
+    UnicodeSyntax
+  , Safe
+  #-}
 
 module Win
   ( getShellFolder

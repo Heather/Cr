@@ -1,8 +1,10 @@
-{-# LANGUAGE CPP
+{-# LANGUAGE
+    CPP
   , MultiWayIf
   , LambdaCase
   , UnicodeSyntax
-  , RankNTypes #-}
+  , RankNTypes
+  #-}
 
 module Installer
   ( showV
@@ -35,11 +37,11 @@ import Prelude.Unicode
 showChromeVersion :: ∀ t b. t → IO b
 showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win
                             >>= printf "last: %s\n"
-                         exitWith ExitSuccess
+                         exitSuccess
 
 install ∷ String → String → Bool → Bool → IO()
-install bl pl force run = do
-    when (not run) $ cSwrap $ do
+install bl pl force run =
+    unless run $ cSwrap $ do
         ymlx   ← getConfig
         config ← openConfig ymlx
         --putStrLn $ " Cr " ++ showMyV
@@ -48,7 +50,7 @@ install bl pl force run = do
                 then do putStrLn " -> Checking for the last version"
                         try $ getLastVersionForPlatform pl
                             ∷ IO (Either SomeException String)
-                        >>= \case Left what → do putStrLn $ show what
+                        >>= \case Left what → do print what
                                                  return installedNow
                                   Right val → return val
                 else return bl
@@ -62,12 +64,8 @@ install bl pl force run = do
 #endif
                     printf " -> Downloading %s\n" ls
                     getChromium pl ls fname `catch` (
-                          \err → do putStrLn $ show (err ∷ IOException)
-#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-                                    putStrLn "Press any key.."
-                                    getChar >> return ()
-#endif
-                                )
+                          \err → print (err ∷ IOException)
+                      )
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
                     when acls $ do pidk ← runCommand "taskkill /im chrome.exe /f"
                                    waitForProcess pidk >> return ()
@@ -76,7 +74,7 @@ install bl pl force run = do
                     pid ← runCommand fname
                     waitForProcess pid >>= \_ → do
                         putStrLn " -> Clean Up"
-                        let removeIfExist [x]    = doesFileExist x >>= (flip when $ removeFile x)
+                        let removeIfExist [x]    = doesFileExist x >>= flip when (removeFile x)
                             removeIfExist (x:xs) = do removeIfExist [x]
                                                       removeIfExist xs
                             removeIfExist []     = return ()
@@ -96,7 +94,7 @@ install bl pl force run = do
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         putStrLn " -> Running"
-    getShellFolder >>= \shellfolder →
+    >> getShellFolder >>= \shellfolder →
         let pchromium = shellfolder </> "Chromium\\Application\\chrome.exe"
         in createProcess (proc pchromium []) >> return ()
 #endif

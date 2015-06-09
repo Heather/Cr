@@ -1,6 +1,8 @@
-{-# LANGUAGE OverloadedStrings
+{-# LANGUAGE
+    OverloadedStrings
   , UnicodeSyntax
-  , ScopedTypeVariables #-}
+  , ScopedTypeVariables
+  #-}
 
 module Downloader
   ( getLastVersionForPlatform

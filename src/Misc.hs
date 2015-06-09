@@ -1,6 +1,8 @@
-{-# LANGUAGE UnicodeSyntax
+{-# LANGUAGE
+    UnicodeSyntax
   , RankNTypes
-  , Safe #-}
+  , Safe
+  #-}
 
 module Misc
   ( showMyV
@@ -20,8 +22,8 @@ showMyV     :: String
 showMyV      = showVersion My.version
 
 showV       :: ∀ t b. t → IO b
-showV _      = printf showMyV >> exitWith ExitSuccess
+showV _      = printf showMyV >> exitSuccess
 
 showHelp    :: ∀ t b a. [OptDescr a] → t → IO b
-showHelp o _ = do putStrLn $ usageInfo "Usage: Cr [optional things]" o
-                  exitWith ExitSuccess
+showHelp o _ = putStrLn (usageInfo "Usage: Cr [optional things]" o)
+                  >> exitSuccess

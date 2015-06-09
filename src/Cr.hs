@@ -2,7 +2,8 @@
   , LambdaCase
   , UnicodeSyntax
   , RankNTypes
-  , KindSignatures #-}
+  , KindSignatures
+  #-}
 
 import Installer
 

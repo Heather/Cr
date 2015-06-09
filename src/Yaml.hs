@@ -1,5 +1,7 @@
-{-# LANGUAGE OverloadedStrings
-  , UnicodeSyntax #-}
+{-# LANGUAGE
+    OverloadedStrings
+  , UnicodeSyntax
+  #-}
 
 module Yaml
   ( Config(..)
@@ -10,6 +12,8 @@ module Yaml
   ) where
 
 import Data.Yaml
+import Data.Maybe (fromMaybe)
+
 import Control.Applicative.Unicode
 
 import qualified Data.ByteString.Char8 as BS
@@ -33,9 +37,8 @@ instance ToJSON Config where
 yDecode ∷ FromJSON iFromJSONable => FilePath → IO iFromJSONable
 yDecode fnm = do
     ymlData ← BS.readFile fnm
-    return $ case Data.Yaml.decode ymlData of
-                Just decoded → decoded
-                Nothing      → error "Can't parse from YAML"
+    return $ fromMaybe (error "Can't parse from YAML")
+                       (decode ymlData)
 
 yEncode ∷ ToJSON iToJSONable => FilePath → iToJSONable → IO()
 yEncode fnm dat = BS.writeFile fnm $ Data.Yaml.encode dat

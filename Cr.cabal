@@ -1,5 +1,5 @@
 name: Cr
-version: 0.6.7
+version: 0.6.8
 license: BSD3
 
 build-type: Simple
@@ -9,7 +9,7 @@ Executable    Cr
   Main-Is:    Cr.hs
   Hs-Source-Dirs: src
   Build-Depends:
-      base
+      base >= 4.3 && < 666
     , base-unicode-symbols
     , lifted-base
     , bytestring

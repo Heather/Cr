@@ -1,6 +1,8 @@
-{-# LANGUAGE MultiWayIf
+{-# LANGUAGE
+    MultiWayIf
   , UnicodeSyntax
-  , RankNTypes #-}
+  , RankNTypes
+  #-}
 
 module InstallHelper
   ( cSwrap
@@ -15,7 +17,9 @@ import System.FilePath (takeDirectory, (</>))
 import System.Info (os)
 import System.Environment.Executable (getExecutablePath)
 
+--import Control.Monad.IfElse
 import Control.Exception
+
 import Prelude.Unicode
 
 cSwrap :: ∀ c. IO c → IO c
@@ -41,10 +45,12 @@ getConfig =
                                                   <$> getExecutablePath
        | otherwise → return "/etc/Cr.yml"
 
+condM :: Monad m => [(m Bool, m a)] → m a
+condM ((test,action) : rest) = test >>= \t -> if t then action
+                                                   else condM rest
+
 openConfig ∷ String → IO Config
 openConfig ymlx =
-    doesFileExist ymlx >>= \isCfgEx →
-        if isCfgEx then yDecode ymlx ∷ IO Config
-                   else return Config { installed="0"
-                                      , autoclose=False
-                                      }
+  condM [ (doesFileExist ymlx, yDecode ymlx ∷ IO Config)
+        , (return True, return Config { installed="0", autoclose=False })
+        ]
