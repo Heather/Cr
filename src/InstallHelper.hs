@@ -17,7 +17,7 @@ import System.FilePath (takeDirectory, (</>))
 import System.Info (os)
 import System.Environment.Executable (getExecutablePath)
 
---import Control.Monad.IfElse
+import Control.Applicative
 import Control.Exception
 
 import Prelude.Unicode
