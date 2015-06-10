@@ -13,6 +13,7 @@ import System.IO
 import System.Info (os)
 import System.Environment (getArgs)
 
+import Control.Applicative
 import Control.Concurrent
 import Control.Exception
 import Control.Monad.Unicode
