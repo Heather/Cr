@@ -69,14 +69,14 @@ options = [
     Option ['r'] ["run"]     (NoArg justRun) "just run without updating"
     ]
 
-getp :: ∀ (m :: * -> *). Monad m ⇒ String → Options → m Options
+getp :: ∀ (m :: * → *). Monad m ⇒ String → Options → m Options
 getp arg opt = return opt { optPlatform = arg }
 
-getb :: ∀ (m :: * -> *). Monad m ⇒ String → Options → m Options
+getb :: ∀ (m :: * → *). Monad m ⇒ String → Options → m Options
 getb arg opt = return opt { optBuild = install arg }
 
-forceReinstall :: ∀ (m :: * -> *). Monad m ⇒ Options → m Options
+forceReinstall :: ∀ (m :: * → *). Monad m ⇒ Options → m Options
 forceReinstall opt = return opt { optForce = True }
 
-justRun :: ∀ (m :: * -> *). Monad m ⇒ Options → m Options
+justRun :: ∀ (m :: * → *). Monad m ⇒ Options → m Options
 justRun opt = return opt { optRun = True }
