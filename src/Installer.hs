@@ -44,7 +44,6 @@ install bl pl force run =
     unless run $ cSwrap $ do
         ymlx   ← getConfig
         config ← openConfig ymlx
-        --putStrLn $ " Cr " ++ showMyV
         let installedNow = installed config
         ls ← if bl == "last"
                 then do putStrLn " -> Checking for the last version"

@@ -24,19 +24,19 @@ import Prelude.Unicode
 
 cSwrap :: ∀ c. IO c → IO c
 cSwrap = bracket_
-     ( do   putStrLn " ________________________________________________________ "
-            putStrLn "          And who the hell do you think I've become?      "
-            putStrLn "  Like the person inside, I've been opening up.           "
-            putStrLn "                            I'm onto you. (I'm onto you.) "
-            putStrLn " ________________________________________________________ "
-    )( do   putStrLn " ________________________________________________________ "
-            putStrLn " Cut out your tongue and feed it to the liars.            "
-            putStrLn "     Black hearts shed light on dying words.              "
-            putStrLn "                                                          "
-            putStrLn "                                 I wanna feel you burn.   "
-            putStrLn " ________________________________________________________ "
-            putStrLn ""
-    )
+   ( do   putStrLn " ________________________________________________________ "
+          putStrLn "          And who the hell do you think I've become?      "
+          putStrLn "  Like the person inside, I've been opening up.           "
+          putStrLn "                            I'm onto you. (I'm onto you.) "
+          putStrLn " ________________________________________________________ "
+  )( do   putStrLn " ________________________________________________________ "
+          putStrLn " Cut out your tongue and feed it to the liars.            "
+          putStrLn "     Black hearts shed light on dying words.              "
+          putStrLn "                                                          "
+          putStrLn "                                 I wanna feel you burn.   "
+          putStrLn " ________________________________________________________ "
+          putStrLn ""
+  )
 
 getConfig ∷ IO String
 getConfig =
@@ -52,5 +52,8 @@ condM ((test,action) : rest) = test >>= \t -> if t then action
 openConfig ∷ String → IO Config
 openConfig ymlx =
   condM [ (doesFileExist ymlx, yDecode ymlx ∷ IO Config)
-        , (return True, return Config { installed="0", autoclose=False })
+        , (return True
+                , return Config { installed="0"
+                                , autoclose=False
+                                })
         ]

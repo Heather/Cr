@@ -1,4 +1,5 @@
-{-# LANGUAGE MultiWayIf
+{-# LANGUAGE
+    MultiWayIf
   , LambdaCase
   , UnicodeSyntax
   , RankNTypes
