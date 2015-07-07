@@ -8,3 +8,5 @@ Smart browser installer / updater
  - Run Cr
  - That's all, chromium is updated to last version or installed.
  - Discover other stuff with --help
+ 
+![CodeShip](https://codeship.com/projects/22222e10-06d3-0133-44b2-3aa75fa3aae1/status?branch=master)
