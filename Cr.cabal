@@ -1,5 +1,5 @@
 name: Cr
-version: 0.7.3
+version: 0.7.4
 license: BSD3
 
 build-type: Simple
@@ -7,6 +7,14 @@ cabal-version: >= 1.6
 
 Executable    Cr
   Main-Is:    Cr.hs
+  Other-Modules:
+    Downloader
+    InstallHelper
+    Installer
+    Misc
+    Paths_Cr
+    Win
+    Yaml
   Hs-Source-Dirs: src
   Build-Depends:
       base >= 4.3 && < 666
