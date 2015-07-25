@@ -1,7 +1,6 @@
 {-# LANGUAGE
     UnicodeSyntax
   , RankNTypes
-  , Safe
   #-}
 
 module Misc

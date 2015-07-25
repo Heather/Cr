@@ -27,4 +27,4 @@ Executable    Cr
     , filepath
     , executable-path
     , yaml
-    , Win32 >= 2.3.1.0
+    , Win32
