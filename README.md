@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/Heather/Cr.png?branch=master)](https://travis-ci.org/Heather/Cr)
+[![Build status](https://ci.appveyor.com/api/projects/status/wct7oa69jqw8xmst?svg=true)](https://ci.appveyor.com/project/Heather/cr)
 
 Smart browser installer / updater
 =================================
