@@ -40,9 +40,8 @@ cSwrap = bracket_
 
 getConfig ∷ IO String
 getConfig =
-    if | os ∈ ["win32", "mingw32", "cygwin32"] → (</> "Cr.yml")
-                                                  <$> takeDirectory
-                                                  <$> getExecutablePath
+    if | os ∈ ["win32", "mingw32", "cygwin32"] →
+          ((</> "Cr.yml") . takeDirectory <$> getExecutablePath)
        | otherwise → return "/etc/Cr.yml"
 
 condM :: Monad m => [(m Bool, m a)] → m a
