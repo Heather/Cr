@@ -1,5 +1,5 @@
 name: Cr
-version: 0.7.2
+version: 0.7.3
 license: BSD3
 
 build-type: Simple
@@ -26,5 +26,6 @@ Executable    Cr
     , directory
     , filepath
     , executable-path
+    , aeson
     , yaml
     , Win32

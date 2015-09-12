@@ -1,6 +1,7 @@
 {-# LANGUAGE
     OverloadedStrings
   , UnicodeSyntax
+  , DeriveGeneric
   #-}
 
 module Yaml
@@ -11,8 +12,13 @@ module Yaml
   , yEncode
   ) where
 
+import GHC.Generics
+
 import Data.Yaml
-import Data.Maybe (fromMaybe)
+
+-- TODO: ghc bug
+-- https://ghc.haskell.org/trac/ghc/ticket/10959
+import Data.Aeson.Types (genericToJSON, defaultOptions)
 
 import Control.Applicative
 import Control.Applicative.Unicode
@@ -22,28 +28,18 @@ import qualified Data.ByteString.Char8 as BS
 data Config = Config { works ∷ String
                      , installed ∷ String
                      , autoclose ∷ Bool
-                     } deriving (Show)
+                     } deriving (Show, Generic)
 
-instance FromJSON Config where
-    parseJSON (Object v) = Config <$>
-                            v .: "works" ⊛
-                            v .: "installed" ⊛
-                            v .: "autoclose"
-    -- A non-Object value is of the wrong type, so fail.
-    parseJSON _ = error "Can't parse Config from YAML/JSON"
-
+instance FromJSON Config
 instance ToJSON Config where
-   toJSON (Config works inst acls) = object
-                            [ "works" .= works
-                            , "installed"  .= inst
-                            , "autoclose"  .= acls
-                            ]
+  toJSON = genericToJSON defaultOptions
 
-yDecode ∷ FromJSON iFromJSONable => FilePath → IO iFromJSONable
+yDecode :: FromJSON iFromJSONable ⇒ FilePath → IO iFromJSONable
 yDecode fnm = do
-    ymlData ← BS.readFile fnm
-    return $ fromMaybe (error "Can't parse from YAML")
-                       (decode ymlData)
+  ymlData ← BS.readFile fnm
+  return $ case decodeEither ymlData of
+                  Left er → error er
+                  Right r → r
 
-yEncode ∷ ToJSON iToJSONable => FilePath → iToJSONable → IO()
-yEncode fnm dat = BS.writeFile fnm $ Data.Yaml.encode dat
+yEncode :: ToJSON iToJSONable ⇒ FilePath → iToJSONable → IO()
+yEncode fnm dat = BS.writeFile fnm $ encode dat
