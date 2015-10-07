@@ -46,10 +46,11 @@ getChromium platform version fname = withSocketsDo $ do
     when fileExist $ do
         putStrLn " -> Removing old version"
         removeFile fname
-    withManager $ \manager → do
-        let request = irequest
-             { method = methodGet
-             , responseTimeout = Just 10000000 }
+    manager ← newManager tlsManagerSettings
+    let request = irequest
+         { method = methodGet
+         , responseTimeout = Just 10000000 }
+    runResourceT $ do
         response ← retryOnTimeout ( http request manager )
         responseBody response C.$$+- sinkFile fname
   where url = "http://storage.googleapis.com/chromium-browser-continuous/"
