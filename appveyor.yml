@@ -7,6 +7,7 @@ install:
     $env:Path += ";${env:ProgramFiles}\Haskell Platform\2014.2.0.0\bin"
     $env:Path += ";${env:ProgramFiles}\Haskell Platform\2014.2.0.0\lib\extralibs\bin"
     $env:Path += ";${env:ProgramFiles}\Haskell Platform\2014.2.0.0\mingw\bin"
+    sed -i '/Win32/d' Cr.cabal
     cabal update
     cabal install --only-dependencies --enable-tests -w "C:\Program Files\Haskell Platform\2014.2.0.0\bin\ghc-7.8.3"
 
