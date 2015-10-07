@@ -46,14 +46,15 @@ getConfig =
        | otherwise → return "/etc/Cr.yml"
 
 condM :: Monad m => [(m Bool, m a)] → m a
-condM ((test,action) : rest) = test >>= \t -> if t then action
-                                                   else condM rest
+condM ((test,action) : rest) = test >>= \t → if t then action
+                                                  else condM rest
 
 openConfig ∷ String → IO Config
 openConfig ymlx =
   condM [ (doesFileExist ymlx, yDecode ymlx ∷ IO Config)
         , (return True
-                , return Config { installed="0"
-                                , autoclose=False
+                , return Config { works = "0"
+                                , installed = "0"
+                                , autoclose = False
                                 })
         ]

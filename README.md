@@ -9,5 +9,9 @@ Smart browser installer / updater
  - Run Cr
  - That's all, chromium is updated to last version or installed.
  - Discover other stuff with --help
+ - Cr -w or --works to store working nightly version
+ - Cr -r or --restore to restore working version
+ - Cr -x or --run to run without updating (in case if current nightly is buggy)
+ - Cr -l or --last to check for last available nightly version
  
 ![CodeShip](https://codeship.com/projects/22222e10-06d3-0133-44b2-3aa75fa3aae1/status?branch=master)

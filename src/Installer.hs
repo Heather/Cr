@@ -10,6 +10,7 @@ module Installer
   ( showV
   , showHelp
   , showChromeVersion
+  , storeWorks
   , install
   ) where
 
@@ -39,13 +40,25 @@ showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win
                             >>= printf "last: %s\n"
                          exitSuccess
 
-install ∷ String → String → Bool → Bool → IO()
-install bl pl force run =
+storeWorks :: ∀ t b. t → IO b
+storeWorks _ = do
+    ymlx   ← getConfig
+    config ← openConfig ymlx
+    let current     = installed config
+        worksConfig = config { works = current }
+    yEncode ymlx worksConfig
+    putStrLn $ "version " ++ current ++ " stored for restore"
+    exitSuccess
+
+install ∷ String → String → Bool → Bool → Bool → IO()
+install bl pl force run restore =
     unless run $ cSwrap $ do
         ymlx   ← getConfig
         config ← openConfig ymlx
         let installedNow = installed config
-        ls ← if bl == "last"
+        ls ← if restore
+              then return $ works config
+              else if bl == "last"
                 then do putStrLn " -> Checking for the last version"
                         try $ getLastVersionForPlatform pl
                             ∷ IO (Either SomeException String)
@@ -53,9 +66,9 @@ install bl pl force run =
                                                  return installedNow
                                   Right val → return val
                 else return bl
-        if installedNow == ls ∧ not force
+        if installedNow == ls ∧ not force ∧ not restore
             then putStrLn " -> This version is installed"
-            else do let acls = autoclose config
+            else do let acls        = autoclose config
                         new_config  = config { installed = ls }
                         fname       = "mini_installer.exe"
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
