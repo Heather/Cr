@@ -25,13 +25,10 @@ import Graphics.Win32.GDI.Types
 import Foreign.C.String
 import Foreign.Marshal.Array
 
-foreign import stdcall unsafe "SHGetFolderPathW" -- ccall
+foreign import stdcall unsafe "SHGetFolderPathW" -- not ccall
     cSHGetFolderPathW ∷ HWND → INT → HANDLE → DWORD → CWString → IO LONG
 
 maxPath = 260
-
--- Someone just should fix System.Win32.Shell
--- But they don't accept pull requests for ages :(
 cSIDL_LOCAL_APPDATA = 0x001c -- ShlObj.h in MS Platform SDK
 cSIDL_DESKTOPDIRECTORY = 0x0010
 

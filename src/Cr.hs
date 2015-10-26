@@ -31,7 +31,7 @@ main = do (actions, _, _) ← getOpt RequireOrder options <$> getArgs
           user   ← getAppUserDataDirectory "Cr.lock"
           locked ← doesFileExist user
           let gogo = build platform force run restore
-              start = myThreadId ≫= \t → withFile user WriteMode (do_program gogo t)
+              start = myThreadId ≫= \t → withFile user WriteMode (doProgram gogo t)
                                              `finally` removeFile user
           if locked then do putStrLn "There is already one instance of this program running."
                             putStrLn "Remove lock and start application? (Y/N)"
@@ -41,8 +41,8 @@ main = do (actions, _, _) ← getOpt RequireOrder options <$> getArgs
                                               _ → return ()
                     else start
 
-do_program ∷ IO () → ThreadId → Handle → IO ()
-do_program gogo _ _ = gogo
+doProgram ∷ IO () → ThreadId → Handle → IO ()
+doProgram gogo _ _ = gogo
 
 data Options = Options
     { optPlatform  ∷ String,   optForce ∷ Bool
@@ -63,15 +63,15 @@ defaultOptions = Options {
 
 options ∷ [OptDescr (Options → IO Options)]
 options = [
-    Option ['v'] ["version"] (NoArg showV) "Display Version",
-    Option ['h'] ["help"]    (NoArg (showHelp options)) "Display Help",
-    Option ['l'] ["last"]    (NoArg showChromeVersion) "show last chromium version number",
-    Option ['p'] ["platform"](ReqArg getp "STRING") "operating system platform",
-    Option ['b'] ["build"]   (ReqArg getb "STRING") "build number",
-    Option ['f'] ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
-    Option ['x'] ["run"]     (NoArg justRun) "just run/execute without updating",
-    Option ['w'] ["works"]   (NoArg storeWorks) "store working version for restore operation",
-    Option ['r'] ["restore"] (NoArg restoreWorks) "restore working version"
+    Option "v" ["version"] (NoArg showV) "Display Version",
+    Option "h" ["help"]    (NoArg (showHelp options)) "Display Help",
+    Option "l" ["last"]    (NoArg showChromeVersion) "show last chromium version number",
+    Option "p" ["platform"](ReqArg getp "STRING") "operating system platform",
+    Option "b" ["build"]   (ReqArg getb "STRING") "build number",
+    Option "f" ["force"]   (NoArg forceReinstall) "force reinstall even if same version is installed",
+    Option "x" ["run"]     (NoArg justRun) "just run/execute without updating",
+    Option "w" ["works"]   (NoArg storeWorks) "store working version for restore operation",
+    Option "r" ["restore"] (NoArg restoreWorks) "restore working version"
     ]
 
 getp :: ∀ (m :: * → *). Monad m           ⇒ String → Options → m Options
