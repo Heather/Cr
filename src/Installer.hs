@@ -35,12 +35,12 @@ import Control.Exception
 
 import Prelude.Unicode
 
-showChromeVersion :: ∀ t b. t → IO b
+showChromeVersion :: ∀ τ β. τ → IO β
 showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win
                             >>= printf "last: %s\n"
                          exitSuccess
 
-storeWorks :: ∀ t b. t → IO b
+storeWorks :: ∀ τ β. τ → IO β
 storeWorks _ = do
     ymlx   ← getConfig
     config ← openConfig ymlx

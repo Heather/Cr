@@ -20,9 +20,9 @@ import Data.Version (showVersion)
 showMyV     :: String
 showMyV      = showVersion My.version
 
-showV       :: ∀ t b. t → IO b
+showV       :: ∀ τ β. τ → IO β
 showV _      = printf showMyV >> exitSuccess
 
-showHelp    :: ∀ t b a. [OptDescr a] → t → IO b
+showHelp    :: ∀ τ β α. [OptDescr α] → τ → IO β
 showHelp o _ = putStrLn (usageInfo "Usage: Cr [optional things]" o)
                   >> exitSuccess

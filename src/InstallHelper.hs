@@ -22,7 +22,7 @@ import Control.Exception
 
 import Prelude.Unicode
 
-cSwrap :: ∀ c. IO c → IO c
+cSwrap :: ∀ γ. IO γ → IO γ
 cSwrap = bracket_
    ( do   putStrLn " ________________________________________________________ "
           putStrLn "          And who the hell do you think I've become?      "

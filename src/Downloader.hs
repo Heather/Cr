@@ -33,7 +33,7 @@ getLastVersionForPlatform platform = withSocketsDo
               ++ platform
               ++ "/LAST_CHANGE"
 
-retryOnTimeout ∷ ResourceT IO a → ResourceT IO a
+retryOnTimeout ∷ ResourceT IO α → ResourceT IO α
 retryOnTimeout action = catch action $ \ (_ :: HttpException) → do
     liftIO $ putStrLn " -> Timed out. Trying again."
     liftIO $ threadDelay 2000000
