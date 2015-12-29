@@ -66,7 +66,17 @@ install bl pl force run restore =
                                                  return installedNow
                                   Right val → return val
                 else return bl
-        if installedNow == ls ∧ not force ∧ not restore
+
+        present <- -- ensure that chromium is installed
+#if defined(mingw32_HOST_OS) || defined(__MINGW32__)
+          getShellFolder
+          >>= \shellfolder → doesFileExist
+                              ( shellfolder
+                              </> "Chromium\\Application\\chrome.exe" )
+#else
+          True
+#endif
+        if installedNow == ls ∧ not force ∧ not restore ∧ present
             then putStrLn " -> This version is installed"
             else do let acls        = autoclose config
                         new_config  = config { installed = ls }

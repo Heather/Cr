@@ -1,0 +1,35 @@
+#!/usr/bin/env runhaskell +RTS -I0 -RTS
+{-# OPTIONS_GHC  -with-rtsopts=-I0 -threaded -rtsopts #-}
+
+import Development.Shake
+import Development.Shake.Command
+import Development.Shake.FilePath
+import Development.Shake.Util
+
+import System.Exit
+import System.Process
+
+import Data.List
+
+import Control.Monad
+
+checkExitCode :: ExitCode -> IO ()
+checkExitCode ExitSuccess = return ()
+checkExitCode (ExitFailure code) =
+    error $ "failed with exit code: " ++ (show code)
+
+cabal :: [String] -> Action ()
+cabal a = traced ("cabal " ++ (intercalate " " a))
+                 (rawSystem "cabal" a >>= checkExitCode)
+
+main :: IO ()
+main = shakeArgs shakeOptions{shakeFiles="dist"} $ do
+    want ["dist/build/Cr" <.> exe]
+
+    phony "clean" $
+        cabal ["clean"]
+
+    "dist/build/Cr" <.> exe %> \out -> do
+        cabal ["install", "--only-dependencies"]
+        cabal ["configure"]
+        cabal ["build"]
