@@ -74,7 +74,7 @@ install bl pl force run restore =
                               ( shellfolder
                               </> "Chromium\\Application\\chrome.exe" )
 #else
-          True
+          return True
 #endif
         if installedNow == ls ∧ not force ∧ not restore ∧ present
             then putStrLn " -> This version is installed"
