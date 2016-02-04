@@ -1,20 +1,18 @@
-import System.Exit
-import System.Process
+{-# LANGUAGE UnicodeSyntax #-}
 
-import Data.List
-
-import Control.Monad
-
-checkExitCode :: ExitCode -> IO ()
-checkExitCode ExitSuccess = return ()
-checkExitCode (ExitFailure code) =
-    error $ "failed with exit code: " ++ (show code)
-
-cabal :: [String] -> IO ()
-cabal a = rawSystem "cabal" a >>= checkExitCode
+import Shake.It.Off
 
 main :: IO ()
-main = do
+main = shake $ do
+  "clean" ∫ cabal ["clean"]
+
+  buildPath </> "Cr.exe" ♯ do
     cabal ["install", "--only-dependencies"]
     cabal ["configure"]
     cabal ["build"]
+
+  "install" ◉ [buildPath </> "Cr.exe"] ∰
+    cabal ["install"]
+
+ where buildPath :: String
+       buildPath = "dist/build/Cr"
