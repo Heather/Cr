@@ -26,12 +26,13 @@ import Control.Monad.Trans.Resource
 import Control.Concurrent
 import Control.Monad.IO.Class (liftIO)
 
+urlbase :: String
+urlbase = "http://storage.googleapis.com/chromium-browser-continuous/"
+
 getLastVersionForPlatform ∷ String → IO String
 getLastVersionForPlatform platform = withSocketsDo
     $ simpleHttp url >>= \bs → return ( S.decode $ L.unpack bs )
-  where url = "http://storage.googleapis.com/chromium-browser-continuous/"
-              ++ platform
-              ++ "/LAST_CHANGE"
+  where url = urlbase ++ platform ++ "/LAST_CHANGE"
 
 retryOnTimeout ∷ ResourceT IO α → ResourceT IO α
 retryOnTimeout action = catch action $ \ (_ :: HttpException) → do
@@ -53,7 +54,7 @@ getChromium platform version fname = withSocketsDo $ do
     runResourceT $ do
         response ← retryOnTimeout ( http request manager )
         responseBody response C.$$+- sinkFile fname
-  where url = "http://storage.googleapis.com/chromium-browser-continuous/"
-              ++ platform ++ "/"
-              ++ version ++ "/"
-              ++ fname
+  where url = urlbase
+           ++ platform ++ "/"
+           ++ version ++ "/"
+           ++ fname
