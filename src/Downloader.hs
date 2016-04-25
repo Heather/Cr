@@ -29,11 +29,13 @@ import Control.Monad.IO.Class (liftIO)
 urlbase :: String
 urlbase = "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/"
 
+infixl 2 ζ
+
+(ζ) :: (String → String) → String
+a ζ b = a ++ "%2F" ++ b
+
 getUrl :: String → String → String
-getUrl platform σ = urlbase
-                 ++ platform
-                 ++ "%2F" ++ σ
-                 ++ "?alt=media"
+getUrl platform σ = urlbase ++ platform ζ σ ++ "?alt=media"
 
 getLastVersionForPlatform ∷ String → IO String
 getLastVersionForPlatform platform = withSocketsDo
@@ -60,4 +62,4 @@ getChromium platform version fname = withSocketsDo $ do
     runResourceT $ do
         response ← retryOnTimeout ( http request manager )
         responseBody response C.$$+- sinkFile fname
-  where url = getUrl platform (version ++ "%2F" ++ fname)
+  where url = getUrl platform (version ζ fname)
