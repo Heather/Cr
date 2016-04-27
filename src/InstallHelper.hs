@@ -49,8 +49,8 @@ condM ((test,action) : rest) = test >>= \t → if t then action
                                                   else condM rest
 
 openConfig ∷ String → IO Config
-openConfig ymlx =
-  condM [ (doesFileExist ymlx, yDecode ymlx ∷ IO Config)
+openConfig ψ =
+  condM [ (doesFileExist ψ, yDecode ψ ∷ IO Config)
         , (return True
                 , return Config { works = "0"
                                 , installed = "0"

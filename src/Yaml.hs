@@ -35,11 +35,11 @@ instance ToJSON Config where
   toJSON = genericToJSON defaultOptions
 
 yDecode :: FromJSON iFromJSONable ⇒ FilePath → IO iFromJSONable
-yDecode fnm = do
-  ymlData ← BS.readFile fnm
+yDecode μ = do
+  ymlData ← BS.readFile μ
   return $ case decodeEither ymlData of
                   Left er → error er
                   Right r → r
 
 yEncode :: ToJSON iToJSONable ⇒ FilePath → iToJSONable → IO()
-yEncode fnm dat = BS.writeFile fnm $ encode dat
+yEncode μ δ = BS.writeFile μ $ encode δ

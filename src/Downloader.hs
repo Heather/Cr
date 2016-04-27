@@ -35,12 +35,12 @@ infixl 2 ζ
 a ζ b = a ++ "%2F" ++ b
 
 getUrl :: String → String → String
-getUrl platform σ = urlbase ++ platform ζ σ ++ "?alt=media"
+getUrl τ σ = urlbase ++ τ ζ σ ++ "?alt=media"
 
 getLastVersionForPlatform ∷ String → IO String
-getLastVersionForPlatform platform = withSocketsDo
+getLastVersionForPlatform τ = withSocketsDo
     $ simpleHttp url >>= \bs → return ( S.decode $ L.unpack bs )
-  where url = getUrl platform "LAST_CHANGE"
+  where url = getUrl τ "LAST_CHANGE"
 
 retryOnTimeout ∷ ResourceT IO α → ResourceT IO α
 retryOnTimeout action = catch action $ \ (_ :: HttpException) → do
@@ -49,7 +49,7 @@ retryOnTimeout action = catch action $ \ (_ :: HttpException) → do
     action
 
 getChromium ∷ String → String → String → IO()
-getChromium platform version fname = withSocketsDo $ do
+getChromium τ version fname = withSocketsDo $ do
     irequest  ← liftIO $ parseUrl url
     fileExist ← doesFileExist fname
     when fileExist $ do
@@ -60,6 +60,6 @@ getChromium platform version fname = withSocketsDo $ do
          { method = methodGet
          , responseTimeout = Just 10000000 }
     runResourceT $ do
-        response ← retryOnTimeout ( http request manager )
-        responseBody response C.$$+- sinkFile fname
-  where url = getUrl platform (version ζ fname)
+        ρ ← retryOnTimeout ( http request manager )
+        responseBody ρ C.$$+- sinkFile fname
+  where url = getUrl τ (version ζ fname)

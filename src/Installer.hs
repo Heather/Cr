@@ -42,30 +42,35 @@ showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win
 
 storeWorks :: ∀ τ β. τ → IO β
 storeWorks _ = do
-    ymlx   ← getConfig
-    config ← openConfig ymlx
-    let current     = installed config
-        worksConfig = config { works = current }
-    yEncode ymlx worksConfig
-    putStrLn $ "version " ++ current ++ " stored for restore"
+    ψ ← getConfig
+    γ ← openConfig ψ
+    let υ = installed γ
+        ω = γ { works = υ }
+    yEncode ψ ω
+    putStrLn $ "version " ++ υ ++ " stored for restore"
     exitSuccess
 
-install ∷ String → String → Bool → Bool → Bool → IO()
-install bl pl force run restore =
+install ∷ String -- build version
+        → String -- platform
+        → Bool   -- force reinstall
+        → Bool   -- run after build
+        → Bool   -- restore previous
+        → IO()
+install β τ force run restore =
     unless run $ cSwrap $ do
         ymlx   ← getConfig
         config ← openConfig ymlx
         let installedNow = installed config
         ls ← if restore
               then return $ works config
-              else if bl == "last"
+              else if β == "last"
                 then do putStrLn " -> Checking for the last version"
-                        try $ getLastVersionForPlatform pl
+                        try $ getLastVersionForPlatform τ
                             ∷ IO (Either SomeException String)
                         >>= \case Left what → do print what
                                                  return installedNow
                                   Right val → return val
-                else return bl
+                else return β
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
         present <- -- ensure that chromium is installed
@@ -85,7 +90,7 @@ install bl pl force run restore =
                     when acls $ putStrLn " -> Warning: Chromium will be killed soon"
 #endif
                     printf " -> Downloading %s\n" ls
-                    getChromium pl ls fname `catch` (
+                    getChromium τ ls fname `catch` (
                           \err → print (err ∷ IOException)
                       )
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)

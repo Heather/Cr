@@ -23,11 +23,11 @@ import Foreign.Storable (sizeOf)
 import Data.Foldable.Unicode
 
 main ∷ IO ()
-main = do (actions, _, _) ← getOpt RequireOrder options <$> getArgs
+main = do (α, _, _) ← getOpt RequireOrder options <$> getArgs
           Options { optPlatform   = platform,   optBuild      = build
                   , optForce      = force,      optRestore    = restore
                   , optRun        = run
-                  } ← foldl (≫=) (return defaultOptions) actions
+                  } ← foldl (≫=) (return defaultOptions) α
           user   ← getAppUserDataDirectory "Cr.lock"
           locked ← doesFileExist user
           let gogo = build platform force run restore
@@ -77,8 +77,8 @@ forceReinstall :: ∀ (m :: * → *). Monad m ⇒ Options → m Options
 justRun :: ∀ (m :: * → *). Monad m        ⇒ Options → m Options
 restoreWorks :: ∀ (m :: * → *). Monad m   ⇒ Options → m Options
 
-getp arg opt        = return opt { optPlatform = arg }
-getb arg opt        = return opt { optBuild = install arg }
-forceReinstall opt  = return opt { optForce = True }
-justRun opt         = return opt { optRun = True }
-restoreWorks opt    = return opt { optRestore = True }
+getp α ο          = return ο { optPlatform = α }
+getb α ο          = return ο { optBuild = install α }
+forceReinstall ο  = return ο { optForce = True }
+justRun ο         = return ο { optRun = True }
+restoreWorks ο    = return ο { optRestore = True }
