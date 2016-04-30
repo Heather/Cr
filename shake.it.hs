@@ -11,6 +11,11 @@ main = shake $ do
     cabal ["configure"]
     cabal ["build"]
 
+  "force" ∫ do
+    cabal ["install", "--force-reinstalls", "--only-dependencies"]
+    cabal ["configure"]
+    cabal ["build"]
+
   "install" ◉ [buildPath </> "Cr.exe"] ∰
     cabal ["install"]
 

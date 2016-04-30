@@ -1,2 +1,9 @@
 cmd: shake
 name: shake
+targets:
+  force:
+    cmd: shake
+    args:
+      - -f
+      - force
+    name: force
