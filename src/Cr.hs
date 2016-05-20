@@ -14,7 +14,6 @@ import System.IO
 import System.Info (os)
 import System.Environment (getArgs)
 
-import Control.Applicative
 import Control.Concurrent
 import Control.Exception
 import Control.Monad.Unicode
@@ -31,7 +30,7 @@ main = do (α, _, _) ← getOpt RequireOrder options <$> getArgs
           user   ← getAppUserDataDirectory "Cr.lock"
           locked ← doesFileExist user
           let gogo = build platform force run restore
-              start = myThreadId ≫= \t → withFile user WriteMode (const gogo)
+              start = myThreadId ≫= \_ → withFile user WriteMode (const gogo)
                                              `finally` removeFile user
           if locked then do putStrLn "There is already one instance of this program running."
                             putStrLn "Remove lock and start application? (Y/N)"

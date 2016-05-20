@@ -20,9 +20,6 @@ import Data.Yaml
 -- https://ghc.haskell.org/trac/ghc/ticket/10959
 import Data.Aeson.Types (genericToJSON, defaultOptions)
 
-import Control.Applicative
-import Control.Applicative.Unicode
-
 import qualified Data.ByteString.Char8 as BS
 
 data Config = Config { works ∷ String
