@@ -1,10 +1,8 @@
-{-# LANGUAGE
-    CPP
-  , MultiWayIf
-  , LambdaCase
-  , UnicodeSyntax
-  , RankNTypes
-  #-}
+{-# LANGUAGE CPP            #-}
+{-# LANGUAGE MultiWayIf     #-}
+{-# LANGUAGE LambdaCase     #-}
+{-# LANGUAGE UnicodeSyntax  #-}
+{-# LANGUAGE RankNTypes     #-}
 
 module Installer
   ( showV
@@ -14,26 +12,26 @@ module Installer
   , install
   ) where
 
-import Yaml
-import Misc
-import Downloader
-import InstallHelper
+import           Yaml
+import           Misc
+import           Downloader
+import           InstallHelper
 
 #if defined(mingw32_HOST_OS) || defined(__MINGW32__)
-import Win
+import           Win
 #endif
 
-import Text.Printf
+import           Text.Printf
 
-import System.Directory
-import System.Process
-import System.Exit
-import System.FilePath ((</>))
+import           System.Directory
+import           System.Process
+import           System.Exit
+import           System.FilePath ((</>))
 
-import Control.Monad
-import Control.Exception
+import           Control.Monad
+import           Control.Exception
 
-import Prelude.Unicode
+import           Prelude.Unicode
 
 showChromeVersion :: ∀ τ β. τ → IO β
 showChromeVersion _ = do getLastVersionForPlatform "Win_x64" -- Win

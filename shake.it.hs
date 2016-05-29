@@ -1,6 +1,6 @@
 {-# LANGUAGE UnicodeSyntax #-}
 
-import Shake.It.Off
+import           Shake.It.Off
 
 main :: IO ()
 main = shake $ do

@@ -1,9 +1,7 @@
-{-# LANGUAGE
-    UnicodeSyntax
-  , ForeignFunctionInterface
-  , Safe
-  , CPP
-  #-}
+{-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE ForeignFunctionInterface #-}
+{-# LANGUAGE Safe #-}
+{-# LANGUAGE CPP #-}
 
 module Win
   ( getShellFolder
@@ -11,8 +9,9 @@ module Win
   , getShellRoamingFolder
   ) where
 
-import System.Win32.Types
-import System.Win32.Shell
+import           System.Win32.Types
+import           System.Win32.Shell
+
 
 #if MIN_VERSION_Win32(2,3,1)
 getShellFolder ∷ IO String

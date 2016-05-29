@@ -1,8 +1,6 @@
-{-# LANGUAGE
-    MultiWayIf
-  , UnicodeSyntax
-  , RankNTypes
-  #-}
+{-# LANGUAGE MultiWayIf    #-}
+{-# LANGUAGE RankNTypes    #-}
+{-# LANGUAGE UnicodeSyntax #-}
 
 module InstallHelper
   ( cSwrap
@@ -10,18 +8,18 @@ module InstallHelper
   , openConfig
   ) where
 
-import Yaml
+import           Yaml
 
-import System.Directory
-import System.FilePath (takeDirectory, (</>))
-import System.Info (os)
-import System.Environment.Executable (getExecutablePath)
+import           System.Directory
+import           System.Environment.Executable (getExecutablePath)
+import           System.FilePath               (takeDirectory, (</>))
+import           System.Info                   (os)
 
-import Control.Exception
+import           Control.Exception
 
-import Prelude.Unicode
+import           Prelude.Unicode
 
-cSwrap :: ∀ γ. IO γ → IO γ
+cSwrap ∷ ∀ γ. IO γ → IO γ
 cSwrap = bracket_
    ( do   putStrLn " ________________________________________________________ "
           putStrLn "          And who the hell do you think I've become?      "
@@ -43,7 +41,7 @@ getConfig =
           ((</> "Cr.yml") . takeDirectory <$> getExecutablePath)
        | otherwise → return "/etc/Cr.yml"
 
-condM :: Monad m => [(m Bool, m a)] → m a
+condM ∷ Monad m ⇒ [(m Bool, m a)] → m a
 condM ((test,action) : rest) = test >>= \t → if t then action
                                                   else condM rest
 

@@ -1,40 +1,38 @@
-{-# LANGUAGE
-    OverloadedStrings
-  , UnicodeSyntax
-  , ScopedTypeVariables
-  #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE UnicodeSyntax       #-}
 
 module Downloader
   ( getLastVersionForPlatform
   , getChromium
   ) where
 
-import System.Directory
-import Network.Socket
-import Network.HTTP.Conduit
-import Network.HTTP.Types
+import           Network.HTTP.Conduit
+import           Network.HTTP.Types
+import           Network.Socket
+import           System.Directory
 
-import Data.Conduit.Binary (sinkFile)
+import           Data.Conduit.Binary          (sinkFile)
 
-import qualified Data.Conduit as C
-import qualified Data.ByteString.Lazy as L
-import qualified Codec.Binary.UTF8.String as S
+import qualified Codec.Binary.UTF8.String     as S
+import qualified Data.ByteString.Lazy         as L
+import qualified Data.Conduit                 as C
 
-import Control.Monad
-import Control.Exception.Lifted
-import Control.Monad.Trans.Resource
-import Control.Concurrent
-import Control.Monad.IO.Class (liftIO)
+import           Control.Concurrent
+import           Control.Exception.Lifted
+import           Control.Monad
+import           Control.Monad.IO.Class       (liftIO)
+import           Control.Monad.Trans.Resource
 
-urlbase :: String
+urlbase ∷ String
 urlbase = "https://www.googleapis.com/download/storage/v1/b/chromium-browser-snapshots/o/"
 
 infixl 2 <+>
 
-(<+>) :: String → String → String
+(<+>) ∷ String → String → String
 a <+> b = a ++ "%2F" ++ b
 
-getUrl :: String → String → String
+getUrl ∷ String → String → String
 getUrl τ σ = urlbase ++ τ <+> σ ++ "?alt=media"
 
 getLastVersionForPlatform ∷ String → IO String

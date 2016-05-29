@@ -1,7 +1,5 @@
-{-# LANGUAGE
-    UnicodeSyntax
-  , RankNTypes
-  #-}
+{-# LANGUAGE RankNTypes    #-}
+{-# LANGUAGE UnicodeSyntax #-}
 
 module Misc
   ( showMyV
@@ -9,20 +7,20 @@ module Misc
   , showHelp
   ) where
 
-import Text.Printf
+import           Text.Printf
 
-import System.Exit
-import System.Console.GetOpt
+import           System.Console.GetOpt
+import           System.Exit
 
-import qualified Paths_Cr as My
-import Data.Version (showVersion)
+import           Data.Version          (showVersion)
+import qualified Paths_Cr              as My
 
-showMyV     :: String
+showMyV     ∷ String
 showMyV      = showVersion My.version
 
-showV       :: ∀ τ β. τ → IO β
+showV       ∷ ∀ τ β. τ → IO β
 showV _      = printf showMyV >> exitSuccess
 
-showHelp    :: ∀ τ β α. [OptDescr α] → τ → IO β
+showHelp    ∷ ∀ τ β α. [OptDescr α] → τ → IO β
 showHelp o _ = putStrLn (usageInfo "Usage: Cr [optional things]" o)
                   >> exitSuccess

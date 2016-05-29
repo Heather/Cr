@@ -1,25 +1,23 @@
-{-# LANGUAGE
-    MultiWayIf
-  , LambdaCase
-  , UnicodeSyntax
-  , RankNTypes
-  , KindSignatures
-  #-}
+{-# LANGUAGE KindSignatures #-}
+{-# LANGUAGE LambdaCase     #-}
+{-# LANGUAGE MultiWayIf     #-}
+{-# LANGUAGE RankNTypes     #-}
+{-# LANGUAGE UnicodeSyntax  #-}
 
-import Installer
+import           Installer
 
-import System.Console.GetOpt
-import System.Directory
-import System.IO
-import System.Info (os)
-import System.Environment (getArgs)
+import           System.Console.GetOpt
+import           System.Directory
+import           System.Environment    (getArgs)
+import           System.Info           (os)
+import           System.IO
 
-import Control.Concurrent
-import Control.Exception
-import Control.Monad.Unicode
+import           Control.Concurrent
+import           Control.Exception
+import           Control.Monad.Unicode
 
-import Foreign.Storable (sizeOf)
-import Data.Foldable.Unicode
+import           Data.Foldable.Unicode
+import           Foreign.Storable      (sizeOf)
 
 main ∷ IO ()
 main = do (α, _, _) ← getOpt RequireOrder options <$> getArgs
@@ -70,11 +68,11 @@ options = [
     Option "r" ["restore"] (NoArg restoreWorks) "restore working version"
     ]
 
-getp :: ∀ (m :: * → *). Monad m           ⇒ String → Options → m Options
-getb :: ∀ (m :: * → *). Monad m           ⇒ String → Options → m Options
-forceReinstall :: ∀ (m :: * → *). Monad m ⇒ Options → m Options
-justRun :: ∀ (m :: * → *). Monad m        ⇒ Options → m Options
-restoreWorks :: ∀ (m :: * → *). Monad m   ⇒ Options → m Options
+getp ∷ ∀ (m :: * → *). Monad m           ⇒ String → Options → m Options
+getb ∷ ∀ (m :: * → *). Monad m           ⇒ String → Options → m Options
+forceReinstall ∷ ∀ (m :: * → *). Monad m ⇒ Options → m Options
+justRun ∷ ∀ (m :: * → *). Monad m        ⇒ Options → m Options
+restoreWorks ∷ ∀ (m :: * → *). Monad m   ⇒ Options → m Options
 
 getp α ο          = return ο { optPlatform = α }
 getb α ο          = return ο { optBuild = install α }
