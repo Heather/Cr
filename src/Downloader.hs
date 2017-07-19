@@ -56,7 +56,7 @@ getChromium τ version fname = withSocketsDo $ do
     manager ← newManager tlsManagerSettings
     let request = irequest
          { method = methodGet
-         , responseTimeout = Just 10000000 }
+         , responseTimeout = responseTimeoutMicro 10000000 }
     runResourceT $ do
         ρ ← retryOnTimeout ( http request manager )
         responseBody ρ C.$$+- sinkFile fname
