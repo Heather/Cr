@@ -13,7 +13,7 @@ import           Network.HTTP.Types
 import           Network.Socket
 import           System.Directory
 
-import           Conduit 					  (runConduit, (.|))
+import           Conduit                      (runConduit, (.|))
 import           Data.Conduit.Binary          (sinkFile)
 import qualified Codec.Binary.UTF8.String     as S
 import qualified Data.ByteString.Lazy         as L
