@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE UnicodeSyntax       #-}
+{-# LANGUAGE FlexibleContexts    #-}
 
 module Downloader
   ( getLastVersionForPlatform
@@ -12,11 +13,10 @@ import           Network.HTTP.Types
 import           Network.Socket
 import           System.Directory
 
+import           Conduit 					  (runConduit, (.|))
 import           Data.Conduit.Binary          (sinkFile)
-
 import qualified Codec.Binary.UTF8.String     as S
 import qualified Data.ByteString.Lazy         as L
-import qualified Data.Conduit                 as C
 
 import           Control.Concurrent
 import           Control.Exception.Lifted
@@ -40,7 +40,8 @@ getLastVersionForPlatform τ = withSocketsDo
     $ simpleHttp url >>= \bs → return ( S.decode $ L.unpack bs )
   where url = getUrl τ "LAST_CHANGE"
 
-retryOnTimeout ∷ ResourceT IO α → ResourceT IO α
+-- using FlexibleContexts
+-- retryOnTimeout ∷ ResourceT IO α → ResourceT IO α
 retryOnTimeout action = catch action $ \ (_ :: HttpException) → do
     liftIO $ putStrLn " -> Timed out. Trying again."
     liftIO $ threadDelay 2000000
@@ -58,6 +59,6 @@ getChromium τ version fname = withSocketsDo $ do
          { method = methodGet
          , responseTimeout = responseTimeoutMicro 10000000 }
     runResourceT $ do
-        ρ ← retryOnTimeout ( http request manager )
-        responseBody ρ C.$$+- sinkFile fname
+        ρ ← http request manager --retryOnTimeout ( http request manager )
+        runConduit $ responseBody ρ .| sinkFile fname
   where url = getUrl τ (version <+> fname)
